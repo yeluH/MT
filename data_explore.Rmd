@@ -279,6 +279,13 @@ ggplot(data = sta_unfalltypgruppe,
   geom_line() +
   geom_point()
 
+colnames(df_escooter)
+sta_inout <- df_escooter %>% count(`Inner-/ausserorts`)
+sta_inout
+sta_roadtype <- df_escooter %>% count(Strassenart)
+sta_roadtype
+
+df_escooter %>% count(Strassenzustand)
 ```
 
 
