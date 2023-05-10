@@ -1,0 +1,71 @@
+---
+title: "data_exploration"
+author: 'Author: Yelu He'
+date: "2023-05-10"
+output: html_document
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+################################################################################
+options(scipen = 6)         # Display digits, not the scientific version
+options(digits = 4)         # Number of significant digits used to display numbers
+options(digits.secs = 6)    # Use milliseconds in Date/Time data types
+options(warning = FALSE)    # Don't show warnings
+
+## Default repository
+local({r <- getOption("repos")
+r["CRAN"] <- "http://cran.r-project.org" 
+options(repos=r)
+})
+
+test_pkg <- function(x)
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x,dep=TRUE)
+    if(!require(x,character.only = TRUE)) stop("Package not found")
+  }
+}
+
+test_pkg("sf")
+test_pkg("tidyverse")
+test_pkg("dplyr")
+test_pkg("sp")
+test_pkg("ggplot2")
+test_pkg("readxl")
+
+# test_pkg("leaflet")
+# test_pkg("spatstat")
+# test_pkg("rgdal")
+# test_pkg("osmdata")
+# test_pkg("osmplotr")
+# 
+# test_pkg("spatialEco")
+# test_pkg("sfnetworks")
+# 
+# test_pkg("tidygraph")
+# test_pkg("lwgeom")
+# test_pkg("tmap")
+# test_pkg("spdep")
+# test_pkg("ows4R")
+# test_pkg("ggforce")
+# test_pkg("dbscan")
+# test_pkg("spdep")
+# test_pkg("units")
+# test_pkg("caret")
+# test_pkg("caTools")
+# test_pkg("Matrix")
+
+
+dataFolder   <- here::here("D:/MT_D/data/")
+# RFolder      <- here::here("D:/MT_D/Rscript")
+# figureFolder <- here::here("D:/MT_D/figs")
+
+```
+
+```{r data, echo = TRUE, warning = FALSE, message = FALSE}
+data_raw <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx")
+excel_sheets("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx")
+dr1
+
+```
