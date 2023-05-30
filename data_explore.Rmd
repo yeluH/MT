@@ -105,6 +105,9 @@ length(df$`Unfall-Nr.`)
 unique(df$Fahrzeugart)
 summary(df$Fahrzeugart)
 df_escooter <- df[df$Fahrzeugart %in% c('|Langsames E-Bike|','|Motorfahrrad (ohne E-Bike)|'),]
+
+
+
 ```
 
 
@@ -139,6 +142,22 @@ ggplot(data = sta_day,
        aes(x = day, y = n, group = 1)) +
   geom_line() +
   geom_point()
+
+df_escooter$month <- format(as.Date(df_escooter$Datum), "%m")
+df_escooter$time <- substr(df_escooter$Zeit, 1, 2)
+df_escooter$time <- as.numeric(df_escooter$time)
+# unique(df_escooter$time)
+df_escooter$Zeit
+unfall_time <- df_escooter %>% select('Zeit', 'time')
+unfall_time
+sta_time <- unfall_time %>% count(time)
+sum(sta_time$n)
+ggplot(data = sta_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+sta_time
+
 
 
 ```
@@ -288,4 +307,87 @@ sta_roadtype
 df_escooter %>% count(Strassenzustand)
 ```
 
+```{r info2, echo = TRUE, warning = FALSE, message = FALSE}
+colnames(df_escooter)[6] <- "UnfalltypGruppeName"
+colnames(df_escooter)[8] <- "UnfalltypName"
+
+unfalltyp_table <- df_escooter %>% select('Unfalltyp', 'UnfalltypName')
+unfalltyp_table <- unique(unfalltyp_table)
+
+sta_unfalltyp <- df_escooter %>% count(Unfalltyp)
+sta_unfalltyp <- merge(sta_unfalltyp, unfalltyp_table, by.x = 'Unfalltyp', by.y = 'Unfalltyp')
+
+sta_unfalltyp[order(sta_unfalltyp$Unfalltyp),]
+sta_type <- sta_unfalltyp[order(sta_unfalltyp$n, decreasing = TRUE),]
+
+sta_unfalltyp$Unfalltyp <- as.numeric(sta_unfalltyp$Unfalltyp)
+
+ut0 <- filter(sta_unfalltyp, (Unfalltyp >= 1) & (Unfalltyp <= 9))
+ut0
+
+ut1 <- filter(sta_unfalltyp, (Unfalltyp >= 10) & (Unfalltyp <= 19))
+ut1
+
+ut2 <- filter(sta_unfalltyp, (Unfalltyp >= 20) & (Unfalltyp <= 29))
+ut2
+
+ut3 <- filter(sta_unfalltyp, (Unfalltyp >= 30) & (Unfalltyp <= 39))
+ut3
+
+ut4 <- filter(sta_unfalltyp, (Unfalltyp >= 40) & (Unfalltyp <= 49))
+ut4
+
+ut5 <- filter(sta_unfalltyp, (Unfalltyp >= 50) & (Unfalltyp <= 59))
+ut5
+
+ut6 <- filter(sta_unfalltyp, (Unfalltyp >= 60) & (Unfalltyp <= 69))
+ut6
+
+ut7 <- filter(sta_unfalltyp, (Unfalltyp >= 70) & (Unfalltyp <= 79))
+ut7
+
+ut8 <- filter(sta_unfalltyp, (Unfalltyp >= 80) & (Unfalltyp <= 89))
+ut8
+
+ut9 <- filter(sta_unfalltyp, (Unfalltyp >= 90) & (Unfalltyp <= 99))
+ut9
+
+sta_unfalltyp
+ggplot(data = sta_unfalltyp, 
+       aes(x = Unfalltyp, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_type[1:10,]
+sum(sta_unfalltyp$n)
+
+```
+
+```{r info3, echo = TRUE, warning = FALSE, message = FALSE}
+unique(df_escooter$Hauptursache)
+sta_cause <- df_escooter %>% count(Hauptursache)
+ggplot(data = sta_cause, 
+       aes(x = Hauptursache, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+sta_cause[order(sta_cause$n, decreasing = TRUE),]
+
+
+df_escooter$Unfalltyp <- as.numeric(df_escooter$Unfalltyp)
+ut0_1 <- filter(df_escooter, Unfalltyp == 1)
+ut0_1$Unfalltyp
+length(ut0_1$Unfalltyp)
+sta_uf01_cause <- ut0_1%>% count(Hauptursache)
+sta_uf01_cause[order(sta_uf01_cause$n, decreasing = TRUE),]
+
+sta_roadtype <- df_escooter %>% count(Strassenart)
+sta_roadtype[order(sta_roadtype$n, decreasing = TRUE),]
+
+colnames(df_escooter)[22] <- "maxspeed"
+sta_maxspeed <- df_escooter %>% count(maxspeed)
+sta_maxspeed[order(sta_maxspeed$n, decreasing = TRUE),]
+
+
+
+```
 
