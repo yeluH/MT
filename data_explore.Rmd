@@ -200,7 +200,7 @@ map12 <-
   geom_sf(data = df_escooter_12, alpha = 0.3, show.legend = "point") +
   theme_void()
 map12
-ggsave("D:/MT_D/figs/12.png", plot = map12)
+# ggsave("D:/MT_D/figs/12.png", plot = map12)
 
 map13 <- 
   ggplot() + 
@@ -209,7 +209,7 @@ map13 <-
   geom_sf(data = df_escooter_13, alpha = 0.3, show.legend = "point") +
   theme_void()
 map13
-ggsave("D:/MT_D/figs/13.png", plot = map13)
+# ggsave("D:/MT_D/figs/13.png", plot = map13)
 
 map14 <- 
   ggplot() + 
@@ -218,7 +218,7 @@ map14 <-
   geom_sf(data = df_escooter_14, alpha = 0.3, show.legend = "point") +
   theme_void()
 map14
-ggsave("D:/MT_D/figs/14.png", plot = map14)
+# ggsave("D:/MT_D/figs/14.png", plot = map14)
 
 map15 <- 
   ggplot() + 
@@ -227,7 +227,7 @@ map15 <-
   geom_sf(data = df_escooter_15, alpha = 0.3, show.legend = "point") +
   theme_void()
 map15
-ggsave("D:/MT_D/figs/15.png", plot = map15)
+# ggsave("D:/MT_D/figs/15.png", plot = map15)
 
 map16 <- 
   ggplot() + 
@@ -236,7 +236,7 @@ map16 <-
   geom_sf(data = df_escooter_16, alpha = 0.3, show.legend = "point") +
   theme_void()
 map16
-ggsave("D:/MT_D/figs/16.png", plot = map16)
+# ggsave("D:/MT_D/figs/16.png", plot = map16)
 
 map17 <- 
   ggplot() + 
@@ -245,7 +245,7 @@ map17 <-
   geom_sf(data = df_escooter_17, alpha = 0.3, show.legend = "point") +
   theme_void()
 map17
-ggsave("D:/MT_D/figs/17.png", plot = map17)
+# ggsave("D:/MT_D/figs/17.png", plot = map17)
 
 map18 <- 
   ggplot() + 
@@ -254,7 +254,7 @@ map18 <-
   geom_sf(data = df_escooter_18, alpha = 0.3, show.legend = "point") +
   theme_void()
 map18
-ggsave("D:/MT_D/figs/18.png", plot = map18)
+# ggsave("D:/MT_D/figs/18.png", plot = map18)
 
 map19 <- 
   ggplot() + 
@@ -263,7 +263,7 @@ map19 <-
   geom_sf(data = df_escooter_19, alpha = 0.3, show.legend = "point") +
   theme_void()
 map19
-ggsave("D:/MT_D/figs/19.png", plot = map19)
+# ggsave("D:/MT_D/figs/19.png", plot = map19)
 
 map20 <- 
   ggplot() + 
@@ -272,7 +272,7 @@ map20 <-
   geom_sf(data = df_escooter_20, alpha = 0.3, show.legend = "point") +
   theme_void()
 map20
-ggsave("D:/MT_D/figs/20.png", plot = map20)
+# ggsave("D:/MT_D/figs/20.png", plot = map20)
 
 map21 <- 
   ggplot() + 
@@ -281,7 +281,7 @@ map21 <-
   geom_sf(data = df_escooter_21, alpha = 0.3, show.legend = "point") +
   theme_void()
 map21
-ggsave("D:/MT_D/figs/21.png", plot = map21)
+# ggsave("D:/MT_D/figs/21.png", plot = map21)
 
 
 ```
@@ -391,3 +391,38 @@ sta_maxspeed[order(sta_maxspeed$n, decreasing = TRUE),]
 
 ```
 
+
+
+```{r info4, echo = TRUE, warning = FALSE, message = FALSE}
+colnames(df_escooter)
+colnames(df_escooter)[9] <- "G"
+colnames(df_escooter)[10] <- "SV"
+colnames(df_escooter)[11] <- "LV"
+
+# Day number of each week
+
+df_escooter$wd <- wday(df_escooter$Datum)
+df_escooter$wd
+# Sunday is 1, Saturday is 7
+sta_wd <- df_escooter %>% count(wd)
+ggplot(data = sta_wd, 
+       aes(x = wd, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+df_escooter_weekday <- filter(df_escooter, (wd >= 2) & (wd <= 6))
+df_escooter_weekend <- filter(df_escooter, (wd <=1) | (wd >= 7))
+
+sta_weekday_time <-  df_escooter_weekday%>% count(time)
+ggplot(data = sta_weekday_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_weekend_time <-  df_escooter_weekend%>% count(time)
+ggplot(data = sta_weekend_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+```
