@@ -1,7 +1,7 @@
 ---
 title: "data_exploration"
 author: 'Author: Yelu He'
-date: "2023-05-10"
+date: "2023-05-31"
 output: html_document
 ---
 
@@ -405,6 +405,7 @@ df_escooter$wd <- wday(df_escooter$Datum)
 df_escooter$wd
 # Sunday is 1, Saturday is 7
 sta_wd <- df_escooter %>% count(wd)
+sta_wd
 ggplot(data = sta_wd, 
        aes(x = wd, y = n, group = 1)) +
   geom_line() +
@@ -425,4 +426,32 @@ ggplot(data = sta_weekend_time,
   geom_line() +
   geom_point()
 
+```
+
+
+
+```{r info5, echo = TRUE, warning = FALSE, message = FALSE}
+severity <- df_escooter %>% select('G', 'SV', 'LV','Unfallfolgen')
+severity_ <- df_escooter %>% select('G', 'SV', 'LV')
+df_escooter <- df_escooter %>% mutate(severity =
+                     case_when(G == 1 ~ "5", 
+                               ((LV == 1) & (SV == 1)) ~ "4",
+                               ((LV == 0) & (SV == 1)) ~ "3",
+                               ((LV == 2) & (SV == 0)) ~ "2",
+                               ((LV == 1) & (SV == 0)) ~ "1",
+                               ((G == 0) & (SV == 0) & (LV == 0) ~ "0")
+))
+sta_severity <-  df_escooter%>% count(severity)
+sta_severity
+sev <- sta_severity$n
+sev <- c(62, 259, 17, 77, 3)
+sl <- c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt")
+pie(sev, sl)
+
+per<- round(100*sev/sum(sev), 1)
+
+# Plot the chart.
+pie(sev, labels = per,col = rainbow(length(sev)))
+legend("bottomright", c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt"), cex = 0.55,
+   fill = rainbow(length(sev)))
 ```
