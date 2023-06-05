@@ -64,22 +64,22 @@ dataFolder   <- here::here("D:/MT_D/data/")
 ```
 
 ```{r data, echo = TRUE, warning = FALSE, message = FALSE}
-data_raw <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx")
-excel_sheets("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx")
+data_raw <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
+excel_sheets("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
 
-data_s1 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s1 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Allgemeine Angaben")
-data_s2 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s2 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Infrastruktur")
-data_s3 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s3 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Bedingungen")
-data_s4 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s4 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Objekte und Personen")
-data_s5 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s5 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Beteiligungen 1")
-data_s6 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s6 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Beteiligungen 2")
-data_s7 <- read_excel("D:/MT_D/data/2023_01_16_05_26_112041351100_Uberblick_intern_note.xlsx", 
+data_s7 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Unfälle nach Unfalltyp")
 
 m1 <- merge(data_s1, data_s2, 
@@ -104,7 +104,7 @@ str(df)
 length(df$`Unfall-Nr.`)
 unique(df$Fahrzeugart)
 summary(df$Fahrzeugart)
-df_escooter <- df[df$Fahrzeugart %in% c('|Langsames E-Bike|','|Motorfahrrad (ohne E-Bike)|'),]
+# df_escooter <- df[df$Fahrzeugart %in% c('|Langsames E-Bike|','|Motorfahrrad (ohne E-Bike)|'),]
 
 
 
@@ -112,6 +112,7 @@ df_escooter <- df[df$Fahrzeugart %in% c('|Langsames E-Bike|','|Motorfahrrad (ohn
 
 
 ```{r time, echo=TRUE, message=FALSE, warning=FALSE}
+df_escooter <- df
 duplicated_col <- duplicated(t(df_escooter))
 colnames(df_escooter[duplicated_col])
 df_escooter <- df_escooter[!duplicated_col]
@@ -182,80 +183,10 @@ ggplot() +
   theme_void()
 
 
-df_escooter_12 <- mapraw[mapraw$year == '2012',]
-df_escooter_13 <- mapraw[mapraw$year == '2013',]
-df_escooter_14 <- mapraw[mapraw$year == '2014',]
-df_escooter_15 <- mapraw[mapraw$year == '2015',]
-df_escooter_16 <- mapraw[mapraw$year == '2016',]
-df_escooter_17 <- mapraw[mapraw$year == '2017',]
-df_escooter_18 <- mapraw[mapraw$year == '2018',]
 df_escooter_19 <- mapraw[mapraw$year == '2019',]
 df_escooter_20 <- mapraw[mapraw$year == '2020',]
 df_escooter_21 <- mapraw[mapraw$year == '2021',]
-
-map12 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_12, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map12
-# ggsave("D:/MT_D/figs/12.png", plot = map12)
-
-map13 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_13, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map13
-# ggsave("D:/MT_D/figs/13.png", plot = map13)
-
-map14 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_14, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map14
-# ggsave("D:/MT_D/figs/14.png", plot = map14)
-
-map15 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_15, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map15
-# ggsave("D:/MT_D/figs/15.png", plot = map15)
-
-map16 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_16, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map16
-# ggsave("D:/MT_D/figs/16.png", plot = map16)
-
-map17 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_17, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map17
-# ggsave("D:/MT_D/figs/17.png", plot = map17)
-
-map18 <- 
-  ggplot() + 
-  geom_sf(data = zurich_map, fill = "white", 
-          color = "black", size = 0.1) +
-  geom_sf(data = df_escooter_18, alpha = 0.3, show.legend = "point") +
-  theme_void()
-map18
-# ggsave("D:/MT_D/figs/18.png", plot = map18)
-
+df_escooter_22 <- mapraw[mapraw$year == '2022',]
 map19 <- 
   ggplot() + 
   geom_sf(data = zurich_map, fill = "white", 
@@ -263,7 +194,7 @@ map19 <-
   geom_sf(data = df_escooter_19, alpha = 0.3, show.legend = "point") +
   theme_void()
 map19
-# ggsave("D:/MT_D/figs/19.png", plot = map19)
+ggsave("D:/MT_D/figs/19.png", plot = map19)
 
 map20 <- 
   ggplot() + 
@@ -272,7 +203,7 @@ map20 <-
   geom_sf(data = df_escooter_20, alpha = 0.3, show.legend = "point") +
   theme_void()
 map20
-# ggsave("D:/MT_D/figs/20.png", plot = map20)
+ggsave("D:/MT_D/figs/20.png", plot = map20)
 
 map21 <- 
   ggplot() + 
@@ -281,7 +212,16 @@ map21 <-
   geom_sf(data = df_escooter_21, alpha = 0.3, show.legend = "point") +
   theme_void()
 map21
-# ggsave("D:/MT_D/figs/21.png", plot = map21)
+ggsave("D:/MT_D/figs/21.png", plot = map21)
+
+map22 <- 
+  ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = df_escooter_22, alpha = 0.3, show.legend = "point") +
+  theme_void()
+map22
+ggsave("D:/MT_D/figs/22.png", plot = map22)
 
 
 ```
@@ -434,9 +374,10 @@ ggplot(data = sta_weekend_time,
 severity <- df_escooter %>% select('G', 'SV', 'LV','Unfallfolgen')
 severity_ <- df_escooter %>% select('G', 'SV', 'LV')
 df_escooter <- df_escooter %>% mutate(severity =
-                     case_when(G == 1 ~ "5", 
-                               ((LV == 1) & (SV == 1)) ~ "4",
-                               ((LV == 0) & (SV == 1)) ~ "3",
+                     case_when(G == 1 ~ "6", 
+                               ((LV == 1) & (SV == 1)) ~ "5",
+                               ((LV == 0) & (SV == 1)) ~ "4",
+                               ((LV == 3) & (SV == 0)) ~ "3",
                                ((LV == 2) & (SV == 0)) ~ "2",
                                ((LV == 1) & (SV == 0)) ~ "1",
                                ((G == 0) & (SV == 0) & (LV == 0) ~ "0")
@@ -444,8 +385,9 @@ df_escooter <- df_escooter %>% mutate(severity =
 sta_severity <-  df_escooter%>% count(severity)
 sta_severity
 sev <- sta_severity$n
-sev <- c(62, 259, 17, 77, 3)
-sl <- c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt")
+sev
+sev <- c(46, 221, 22, 2, 53, 6)
+sl <- c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","3 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt")
 pie(sev, sl)
 
 per<- round(100*sev/sum(sev), 1)
@@ -454,4 +396,9 @@ per<- round(100*sev/sum(sev), 1)
 pie(sev, labels = per,col = rainbow(length(sev)))
 legend("bottomright", c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt"), cex = 0.55,
    fill = rainbow(length(sev)))
+
+unique(df$Verkehrsaufkommen)
+
+sta_v <- df_escooter %>% count(Verkehrsaufkommen)
+sta_v
 ```
