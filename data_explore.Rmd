@@ -194,7 +194,7 @@ map19 <-
   geom_sf(data = df_escooter_19, alpha = 0.3, show.legend = "point") +
   theme_void()
 map19
-ggsave("D:/MT_D/figs/19.png", plot = map19)
+# ggsave("D:/MT_D/figs/19.png", plot = map19)
 
 map20 <- 
   ggplot() + 
@@ -203,7 +203,7 @@ map20 <-
   geom_sf(data = df_escooter_20, alpha = 0.3, show.legend = "point") +
   theme_void()
 map20
-ggsave("D:/MT_D/figs/20.png", plot = map20)
+# ggsave("D:/MT_D/figs/20.png", plot = map20)
 
 map21 <- 
   ggplot() + 
@@ -212,7 +212,7 @@ map21 <-
   geom_sf(data = df_escooter_21, alpha = 0.3, show.legend = "point") +
   theme_void()
 map21
-ggsave("D:/MT_D/figs/21.png", plot = map21)
+# ggsave("D:/MT_D/figs/21.png", plot = map21)
 
 map22 <- 
   ggplot() + 
@@ -221,7 +221,7 @@ map22 <-
   geom_sf(data = df_escooter_22, alpha = 0.3, show.legend = "point") +
   theme_void()
 map22
-ggsave("D:/MT_D/figs/22.png", plot = map22)
+# ggsave("D:/MT_D/figs/22.png", plot = map22)
 
 
 ```
@@ -394,7 +394,7 @@ per<- round(100*sev/sum(sev), 1)
 
 # Plot the chart.
 pie(sev, labels = per,col = rainbow(length(sev)))
-legend("bottomright", c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt"), cex = 0.55,
+legend("bottomright", c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","3 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt"), cex = 0.55,
    fill = rainbow(length(sev)))
 
 unique(df$Verkehrsaufkommen)
