@@ -1,0 +1,431 @@
+---
+title: "data_analysis"
+author: 'Author: Yelu He'
+date: "2023-08-17"
+output: html_document
+---
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+################################################################################
+options(scipen = 6)         # Display digits, not the scientific version
+options(digits = 4)         # Number of significant digits used to display numbers
+options(digits.secs = 6)    # Use milliseconds in Date/Time data types
+options(warning = FALSE)    # Don't show warnings
+
+## Default repository
+local({r <- getOption("repos")
+r["CRAN"] <- "http://cran.r-project.org" 
+options(repos=r)
+})
+
+test_pkg <- function(x)
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x,dep=TRUE)
+    if(!require(x,character.only = TRUE)) stop("Package not found")
+  }
+}
+
+test_pkg("sf")
+test_pkg("tidyverse")
+test_pkg("dplyr")
+test_pkg("sp")
+test_pkg("ggplot2")
+test_pkg("readxl")
+
+# test_pkg("leaflet")
+# test_pkg("spatstat")
+# test_pkg("rgdal")
+# test_pkg("osmdata")
+# test_pkg("osmplotr")
+# 
+# test_pkg("spatialEco")
+# test_pkg("sfnetworks")
+# 
+# test_pkg("tidygraph")
+# test_pkg("lwgeom")
+# test_pkg("tmap")
+# test_pkg("spdep")
+# test_pkg("ows4R")
+# test_pkg("ggforce")
+# test_pkg("dbscan")
+# test_pkg("spdep")
+# test_pkg("units")
+# test_pkg("caret")
+# test_pkg("caTools")
+# test_pkg("Matrix")
+
+
+dataFolder   <- here::here("D:/MT_D/data/")
+# RFolder      <- here::here("D:/MT_D/Rscript")
+# figureFolder <- here::here("D:/MT_D/figs")
+
+```
+
+```{r data, echo = TRUE, warning = FALSE, message = FALSE}
+# Import data
+data_raw <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
+excel_sheets("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
+
+data_s1 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Allgemeine Angaben")
+colnames(data_s1)[5:12] <- c("Unfalltyp Gruppe number", "Unfalltyp Groupe name", 
+                             "Unfalltyp number", "Unfalltyp name",
+                             "G", "SV", "LV", "Sachschaden")
+data_s1 <- subset(data_s1, select = -c(Bemerkung))
+data_s1 <- subset(data_s1, select = -c(Nr.))
+colnames(data_s1)
+
+data_s2 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Infrastruktur")
+data_s2 <- subset(data_s2, select = -c(Bemerkung)) 
+data_s2 <- subset(data_s2, select = -c(Nr.))
+
+# colnames(data_s2)
+
+data_s3 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Bedingungen")
+data_s3 <- subset(data_s3, select = -c(Bemerkung))
+data_s3 <- subset(data_s3, select = -c(Nr.))
+
+# colnames(data_s3)
+
+data_s4 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Objekte und Personen")
+data_s4 <- subset(data_s4, select = -c(Bemerkung))
+data_s4 <- subset(data_s4, select = -c(Nr.))
+# colnames(data_s4)
+
+data_s5 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Beteiligungen 1")
+data_s5 <- subset(data_s5, select = -c(Bemerkung))
+data_s5 <- subset(data_s5, select = -c(Nr.))
+colnames(data_s5)[3:5] <- c("Kinder-unfall",
+                            "Kinderunfall auf dem Schulweg",
+                            "Senioren-unfall")
+colnames(data_s5)[12] <- "Anzahl Fahrräder mit elektr. Tretunterstützung bis 45km/h"
+# colnames(data_s5)
+
+data_s6 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Beteiligungen 2")
+data_s6 <- subset(data_s6, select = -c(Bemerkung))
+data_s6 <- subset(data_s6, select = -c(Nr.))
+colnames(data_s6)[5] <- "Motorräder"
+# colnames(data_s6)
+
+
+data_s7 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
+                      sheet = "Unfälle nach Unfalltyp")
+# Merge all the sheets
+m1 <- merge(data_s1, data_s2, 
+            by.x = "Unfall-Nr.",
+            by.y = "Unfall-Nr.")
+
+m2 <- merge(m1, data_s3,
+            by.x = "Unfall-Nr.",
+            by.y = "Unfall-Nr.")
+m3 <- merge(m2, data_s4,
+            by.x = "Unfall-Nr.",
+            by.y = "Unfall-Nr.")
+m4 <- merge(m3, data_s5,
+            by.x = "Unfall-Nr.",
+            by.y = "Unfall-Nr.")
+m5 <- merge(m4, data_s6, 
+            by.x = "Unfall-Nr.",
+            by.y = "Unfall-Nr.")
+
+df <- m5
+str(df)
+colnames(df)
+```
+
+
+```{r time, echo=TRUE, message=FALSE, warning=FALSE}
+df_escooter <- df
+duplicated_col <- duplicated(t(df_escooter))
+colnames(df_escooter[duplicated_col])
+df_escooter <- df_escooter[!duplicated_col]
+
+df_escooter$month <- format(as.Date(df_escooter$Datum), "%m")
+df_escooter$year <- format(as.Date(df_escooter$Datum), "%Y")
+df_escooter$day <- format(as.Date(df_escooter$Datum), "%d")
+
+unique(df_escooter$year)
+str(df_escooter$year)
+df_escooter$year <- as.numeric(df_escooter$year)
+
+
+sta_year <- df_escooter %>% count(year)
+ggplot(data = sta_year, 
+       aes(x = year, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_month <- df_escooter %>% count(month)
+ggplot(data = sta_month, 
+       aes(x = month, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_day <- df_escooter %>% count(day)
+ggplot(data = sta_day, 
+       aes(x = day, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+df_escooter$month <- format(as.Date(df_escooter$Datum), "%m")
+df_escooter$time <- substr(df_escooter$Zeit, 1, 2)
+df_escooter$time <- as.numeric(df_escooter$time)
+# unique(df_escooter$time)
+df_escooter$Zeit
+unfall_time <- df_escooter %>% select('Zeit', 'time')
+unfall_time
+sta_time <- unfall_time %>% count(time)
+sum(sta_time$n)
+ggplot(data = sta_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+sta_time
+
+
+
+```
+
+
+```{r map, echo = TRUE, warning = FALSE, message = FALSE}
+zurich_map <- st_read(file.path(dataFolder, "stadtkreis/stadtkreis/Stadtkreis.shp"))
+zurich_map <- st_transform(zurich_map, epsg = 2056)
+
+mapraw <- st_as_sf(df_escooter, coords = c("Koord E", "Koord N"), crs = 2056, remove = FALSE)
+
+ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = mapraw, alpha = 0.3, show.legend = "point") +
+  theme_void()
+
+ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = mapraw, aes(color = year), alpha = 0.3, show.legend = "point") +
+  theme_void()
+
+
+df_escooter_19 <- mapraw[mapraw$year == '2019',]
+df_escooter_20 <- mapraw[mapraw$year == '2020',]
+df_escooter_21 <- mapraw[mapraw$year == '2021',]
+df_escooter_22 <- mapraw[mapraw$year == '2022',]
+map19 <- 
+  ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = df_escooter_19, alpha = 0.3, show.legend = "point") +
+  theme_void()
+map19
+# ggsave("D:/MT_D/figs/19.png", plot = map19)
+
+map20 <- 
+  ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = df_escooter_20, alpha = 0.3, show.legend = "point") +
+  theme_void()
+map20
+# ggsave("D:/MT_D/figs/20.png", plot = map20)
+
+map21 <- 
+  ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = df_escooter_21, alpha = 0.3, show.legend = "point") +
+  theme_void()
+map21
+# ggsave("D:/MT_D/figs/21.png", plot = map21)
+
+map22 <- 
+  ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = df_escooter_22, alpha = 0.3, show.legend = "point") +
+  theme_void()
+map22
+# ggsave("D:/MT_D/figs/22.png", plot = map22)
+
+
+```
+
+
+
+```{r info, echo = TRUE, warning = FALSE, message = FALSE}
+sta_unfalltypgruppe <- df_escooter %>% count(UnfalltypGruppe)
+
+ggplot(data = sta_unfalltypgruppe, 
+       aes(x = UnfalltypGruppe, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+colnames(df_escooter)
+sta_inout <- df_escooter %>% count(`Inner-/ausserorts`)
+sta_inout
+sta_roadtype <- df_escooter %>% count(Strassenart)
+sta_roadtype
+
+df_escooter %>% count(Strassenzustand)
+```
+
+```{r info2, echo = TRUE, warning = FALSE, message = FALSE}
+colnames(df_escooter)[6] <- "UnfalltypGruppeName"
+colnames(df_escooter)[8] <- "UnfalltypName"
+
+unfalltyp_table <- df_escooter %>% select('Unfalltyp', 'UnfalltypName')
+unfalltyp_table <- unique(unfalltyp_table)
+
+sta_unfalltyp <- df_escooter %>% count(Unfalltyp)
+sta_unfalltyp <- merge(sta_unfalltyp, unfalltyp_table, by.x = 'Unfalltyp', by.y = 'Unfalltyp')
+
+sta_unfalltyp[order(sta_unfalltyp$Unfalltyp),]
+sta_type <- sta_unfalltyp[order(sta_unfalltyp$n, decreasing = TRUE),]
+
+sta_unfalltyp$Unfalltyp <- as.numeric(sta_unfalltyp$Unfalltyp)
+
+ut0 <- filter(sta_unfalltyp, (Unfalltyp >= 1) & (Unfalltyp <= 9))
+ut0
+
+ut1 <- filter(sta_unfalltyp, (Unfalltyp >= 10) & (Unfalltyp <= 19))
+ut1
+
+ut2 <- filter(sta_unfalltyp, (Unfalltyp >= 20) & (Unfalltyp <= 29))
+ut2
+
+ut3 <- filter(sta_unfalltyp, (Unfalltyp >= 30) & (Unfalltyp <= 39))
+ut3
+
+ut4 <- filter(sta_unfalltyp, (Unfalltyp >= 40) & (Unfalltyp <= 49))
+ut4
+
+ut5 <- filter(sta_unfalltyp, (Unfalltyp >= 50) & (Unfalltyp <= 59))
+ut5
+
+ut6 <- filter(sta_unfalltyp, (Unfalltyp >= 60) & (Unfalltyp <= 69))
+ut6
+
+ut7 <- filter(sta_unfalltyp, (Unfalltyp >= 70) & (Unfalltyp <= 79))
+ut7
+
+ut8 <- filter(sta_unfalltyp, (Unfalltyp >= 80) & (Unfalltyp <= 89))
+ut8
+
+ut9 <- filter(sta_unfalltyp, (Unfalltyp >= 90) & (Unfalltyp <= 99))
+ut9
+
+sta_unfalltyp
+ggplot(data = sta_unfalltyp, 
+       aes(x = Unfalltyp, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_type[1:10,]
+sum(sta_unfalltyp$n)
+
+```
+
+```{r info3, echo = TRUE, warning = FALSE, message = FALSE}
+unique(df_escooter$Hauptursache)
+sta_cause <- df_escooter %>% count(Hauptursache)
+ggplot(data = sta_cause, 
+       aes(x = Hauptursache, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+sta_cause[order(sta_cause$n, decreasing = TRUE),]
+
+
+df_escooter$Unfalltyp <- as.numeric(df_escooter$Unfalltyp)
+ut0_1 <- filter(df_escooter, Unfalltyp == 1)
+ut0_1$Unfalltyp
+length(ut0_1$Unfalltyp)
+sta_uf01_cause <- ut0_1%>% count(Hauptursache)
+sta_uf01_cause[order(sta_uf01_cause$n, decreasing = TRUE),]
+
+sta_roadtype <- df_escooter %>% count(Strassenart)
+sta_roadtype[order(sta_roadtype$n, decreasing = TRUE),]
+
+colnames(df_escooter)[22] <- "maxspeed"
+sta_maxspeed <- df_escooter %>% count(maxspeed)
+sta_maxspeed[order(sta_maxspeed$n, decreasing = TRUE),]
+
+
+
+```
+
+
+
+```{r info4, echo = TRUE, warning = FALSE, message = FALSE}
+colnames(df_escooter)
+colnames(df_escooter)[9] <- "G"
+colnames(df_escooter)[10] <- "SV"
+colnames(df_escooter)[11] <- "LV"
+
+# Day number of each week
+
+df_escooter$wd <- wday(df_escooter$Datum)
+df_escooter$wd
+# Sunday is 1, Saturday is 7
+sta_wd <- df_escooter %>% count(wd)
+sta_wd
+ggplot(data = sta_wd, 
+       aes(x = wd, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+df_escooter_weekday <- filter(df_escooter, (wd >= 2) & (wd <= 6))
+df_escooter_weekend <- filter(df_escooter, (wd <=1) | (wd >= 7))
+
+sta_weekday_time <-  df_escooter_weekday%>% count(time)
+ggplot(data = sta_weekday_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_weekend_time <-  df_escooter_weekend%>% count(time)
+ggplot(data = sta_weekend_time, 
+       aes(x = time, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+```
+
+
+
+```{r info5, echo = TRUE, warning = FALSE, message = FALSE}
+severity <- df_escooter %>% select('G', 'SV', 'LV','Unfallfolgen')
+severity_ <- df_escooter %>% select('G', 'SV', 'LV')
+df_escooter <- df_escooter %>% mutate(severity =
+                     case_when(G == 1 ~ "6", 
+                               ((LV == 1) & (SV == 1)) ~ "5",
+                               ((LV == 0) & (SV == 1)) ~ "4",
+                               ((LV == 3) & (SV == 0)) ~ "3",
+                               ((LV == 2) & (SV == 0)) ~ "2",
+                               ((LV == 1) & (SV == 0)) ~ "1",
+                               ((G == 0) & (SV == 0) & (LV == 0) ~ "0")
+))
+sta_severity <-  df_escooter%>% count(severity)
+sta_severity
+sev <- sta_severity$n
+sev
+sev <- c(46, 221, 22, 2, 53, 6)
+sl <- c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","3 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt")
+pie(sev, sl)
+
+per<- round(100*sev/sum(sev), 1)
+
+# Plot the chart.
+pie(sev, labels = per,col = rainbow(length(sev)))
+legend("bottomright", c("nicht verletzt", "1 leicht verletzt","2 leicht verletzt","3 leicht verletzt","1 schwer verletzt","1 leicht verletzt + 1 schwer verletzt"), cex = 0.55,
+   fill = rainbow(length(sev)))
+
+unique(df$Verkehrsaufkommen)
+
+sta_v <- df_escooter %>% count(Verkehrsaufkommen)
+sta_v
+```
