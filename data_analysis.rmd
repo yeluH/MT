@@ -4,6 +4,8 @@ author: 'Author: Yelu He'
 date: "2023-08-17"
 output: html_document
 ---
+
+# Library
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
 ################################################################################
 options(scipen = 6)         # Display digits, not the scientific version
@@ -62,6 +64,8 @@ dataFolder   <- here::here("D:/MT_D/data/")
 
 ```
 
+# Data 
+## Data cleaning
 ```{r data, echo = TRUE, warning = FALSE, message = FALSE}
 # Import data
 data_raw <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
@@ -139,7 +143,8 @@ str(df)
 colnames(df)
 ```
 
-
+## Data statistical analysis
+### Time
 ```{r time, echo=TRUE, message=FALSE, warning=FALSE}
 df_escooter <- df
 duplicated_col <- duplicated(t(df_escooter))
@@ -154,31 +159,46 @@ unique(df_escooter$year)
 str(df_escooter$year)
 df_escooter$year <- as.numeric(df_escooter$year)
 
-
+# Year
 sta_year <- df_escooter %>% count(year)
 ggplot(data = sta_year, 
        aes(x = year, y = n, group = 1)) +
   geom_line() +
   geom_point()
 
+# Month
 sta_month <- df_escooter %>% count(month)
 ggplot(data = sta_month, 
        aes(x = month, y = n, group = 1)) +
   geom_line() +
   geom_point()
 
+# Month_year
+sta_month_year <- df_escooter %>% count(month,year)
+sta_month_year$year <- factor(sta_month_year$year)
+ggplot(data = sta_month_year, 
+       aes(x = month, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_month_year, aes(x = month, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+# Day
 sta_day <- df_escooter %>% count(day)
 ggplot(data = sta_day, 
        aes(x = day, y = n, group = 1)) +
   geom_line() +
   geom_point()
 
+# Time
 df_escooter$month <- format(as.Date(df_escooter$Datum), "%m")
 df_escooter$time <- substr(df_escooter$Zeit, 1, 2)
 df_escooter$time <- as.numeric(df_escooter$time)
 # unique(df_escooter$time)
 df_escooter$Zeit
-unfall_time <- df_escooter %>% select('Zeit', 'time')
+unfall_time <- df_escooter %>% select('Zeit', 'time', 'year')
 unfall_time
 sta_time <- unfall_time %>% count(time)
 sum(sta_time$n)
@@ -187,9 +207,179 @@ ggplot(data = sta_time,
   geom_line() +
   geom_point()
 sta_time
+# time_year
+sta_time_year <- unfall_time %>% count(time,year)
+sta_time_year$year <- factor(sta_time_year$year)
+ggplot(data = sta_time_year, 
+       aes(x = time, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_time_year, aes(x = time, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+# Day number of each week
+df_escooter$wd <- wday(df_escooter$Datum, week_start = 1)
+# Week day number starts from Monday, Monday is 1. 
+sta_wd <- df_escooter %>% count(wd)
+sta_wd
+ggplot(data = sta_wd, 
+       aes(x = wd, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+# Day number of each week - year
+sta_wd_year <- df_escooter %>% count(wd, year)
+sta_wd_year$year <- factor(sta_wd_year$year)
+ggplot(data = sta_wd_year, 
+       aes(x = wd, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_wd_year, aes(x = wd, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+```
+
+### Impact
+```{r impact, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+sta_G_year <- df_escooter %>% count(G,year)
+sta_G_year$year <- factor(sta_G_year$year)
+ggplot(data = sta_G_year, 
+       aes(x = G, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_G_year, aes(x = G, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_SV_year <- df_escooter %>% count(SV,year)
+sta_SV_year$year <- factor(sta_SV_year$year)
+ggplot(data = sta_SV_year, 
+       aes(x = SV, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_SV_year, aes(x = SV, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_LV_year <- df_escooter %>% count(LV,year)
+sta_LV_year$year <- factor(sta_LV_year$year)
+ggplot(data = sta_LV_year, 
+       aes(x = LV, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_LV_year, aes(x = LV, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_sachschaden_year <- df_escooter %>% count(Sachschaden,year)
+sta_sachschaden_year$year <- factor(sta_sachschaden_year$year)
+ggplot(data = sta_sachschaden_year, 
+       aes(x = Sachschaden, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_sachschaden_year, aes(x = Sachschaden, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+```
+
+### Location
+```{r location, echo = TRUE, warning = FALSE, message = FALSE}
+sta_Unfallstelle_year <- df_escooter %>% count(Unfallstelle,year)
+sta_Unfallstelle_year$year <- factor(sta_Unfallstelle_year$year)
+ggplot(data = sta_Unfallstelle_year, 
+       aes(x = Unfallstelle, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Unfallstelle_year, aes(x = Unfallstelle, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_Innerausserorts_year <- df_escooter %>% count(`Inner-/ausserorts`,year)
+sta_Innerausserorts_year$year <- factor(sta_Innerausserorts_year$year)
+ggplot(data = sta_Innerausserorts_year, 
+       aes(x = `Inner-/ausserorts`, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Innerausserorts_year, aes(x = `Inner-/ausserorts`, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_Strassenart_year <- df_escooter %>% count(Strassenart,year)
+sta_Strassenart_year$year <- factor(sta_Strassenart_year$year)
+ggplot(data = sta_Strassenart_year, 
+       aes(x = Strassenart, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Strassenart_year, aes(x = Strassenart, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+colnames(df_escooter)[20] <- "Hochstgeschwindigkeit"
+colnames(df_escooter)[21] <- "Strassenbeleuchtung"
+
+sta_Hochstgeschwindigkeit_year <- df_escooter %>% count(Hochstgeschwindigkeit,year)
+sta_Hochstgeschwindigkeit_year$year <- factor(sta_Hochstgeschwindigkeit_year$year)
+ggplot(data = sta_Hochstgeschwindigkeit_year, 
+       aes(x = Hochstgeschwindigkeit, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Hochstgeschwindigkeit_year, aes(x = Hochstgeschwindigkeit, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
 
 
 
+```
+
+
+### Traffic
+```{r traffic, echo = TRUE, warning = FALSE, message = FALSE}
+sta_Strassenbeleuchtung_year <- df_escooter %>% count(Strassenbeleuchtung,year)
+sta_Strassenbeleuchtung_year$year <- factor(sta_Strassenbeleuchtung_year$year)
+ggplot(data = sta_Strassenbeleuchtung_year, 
+       aes(x = Strassenbeleuchtung, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Strassenbeleuchtung_year, aes(x = Strassenbeleuchtung, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+sta_Strassenzustand_year <- df_escooter %>% count(Strassenzustand,year)
+sta_Strassenzustand_year$year <- factor(sta_Strassenzustand_year$year)
+ggplot(data = sta_Strassenzustand_year, 
+       aes(x = Strassenzustand, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Strassenzustand_year, aes(x = Strassenzustand, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+sta_Verkehrsaufkommen_year <- df_escooter %>% count(Verkehrsaufkommen,year)
+sta_Verkehrsaufkommen_year$year <- factor(sta_Verkehrsaufkommen_year$year)
+ggplot(data = sta_Verkehrsaufkommen_year, 
+       aes(x = Verkehrsaufkommen, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Verkehrsaufkommen_year, aes(x = Verkehrsaufkommen, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
 ```
 
 
@@ -361,25 +551,10 @@ sta_maxspeed[order(sta_maxspeed$n, decreasing = TRUE),]
 
 
 ```{r info4, echo = TRUE, warning = FALSE, message = FALSE}
-colnames(df_escooter)
-colnames(df_escooter)[9] <- "G"
-colnames(df_escooter)[10] <- "SV"
-colnames(df_escooter)[11] <- "LV"
 
-# Day number of each week
-
-df_escooter$wd <- wday(df_escooter$Datum)
-df_escooter$wd
-# Sunday is 1, Saturday is 7
-sta_wd <- df_escooter %>% count(wd)
-sta_wd
-ggplot(data = sta_wd, 
-       aes(x = wd, y = n, group = 1)) +
-  geom_line() +
-  geom_point()
-
-df_escooter_weekday <- filter(df_escooter, (wd >= 2) & (wd <= 6))
-df_escooter_weekend <- filter(df_escooter, (wd <=1) | (wd >= 7))
+# Divide weekday and weekend
+df_escooter_weekday <- filter(df_escooter, (wd >= 1) & (wd <= 5))
+df_escooter_weekend <- filter(df_escooter, (wd >= 6) & (wd <= 7))
 
 sta_weekday_time <-  df_escooter_weekday%>% count(time)
 ggplot(data = sta_weekday_time, 
@@ -392,6 +567,7 @@ ggplot(data = sta_weekend_time,
        aes(x = time, y = n, group = 1)) +
   geom_line() +
   geom_point()
+
 
 ```
 
