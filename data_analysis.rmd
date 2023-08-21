@@ -73,49 +73,67 @@ excel_sheets("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx")
 
 data_s1 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Allgemeine Angaben")
-colnames(data_s1)[5:12] <- c("Unfalltyp Gruppe number", "Unfalltyp Groupe name", 
-                             "Unfalltyp number", "Unfalltyp name",
+colnames(data_s1)[5:12] <- c("UnfalltypGruppenumber", "UnfalltypGroupename", 
+                             "Unfalltypnumber", "Unfalltypname",
                              "G", "SV", "LV", "Sachschaden")
+colnames(data_s1)[14:15] <- c("KoordE", "KoordN")
 data_s1 <- subset(data_s1, select = -c(Bemerkung))
 data_s1 <- subset(data_s1, select = -c(Nr.))
-colnames(data_s1)
+# colnames(data_s1)
 
 data_s2 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Infrastruktur")
 data_s2 <- subset(data_s2, select = -c(Bemerkung)) 
 data_s2 <- subset(data_s2, select = -c(Nr.))
-
+colnames(data_s2)[3] <- "Innerausserorts"
+colnames(data_s2)[6] <- "Hochstgeschwindigkeit"
+colnames(data_s2)[7] <- "Strassenbeleuchtung"
 # colnames(data_s2)
+
 
 data_s3 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Bedingungen")
 data_s3 <- subset(data_s3, select = -c(Bemerkung))
 data_s3 <- subset(data_s3, select = -c(Nr.))
-
+colnames(data_s3)[3] <- "Lichtverhaltnis"
 # colnames(data_s3)
 
 data_s4 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Objekte und Personen")
 data_s4 <- subset(data_s4, select = -c(Bemerkung))
 data_s4 <- subset(data_s4, select = -c(Nr.))
+colnames(data_s4)[4] <- "Blutalkoholkonzent"
+colnames(data_s4)[5] <- "Atemalkoholkonzent"
 # colnames(data_s4)
+
 
 data_s5 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Beteiligungen 1")
 data_s5 <- subset(data_s5, select = -c(Bemerkung))
 data_s5 <- subset(data_s5, select = -c(Nr.))
-colnames(data_s5)[3:5] <- c("Kinder-unfall",
-                            "Kinderunfall auf dem Schulweg",
-                            "Senioren-unfall")
-colnames(data_s5)[12] <- "Anzahl Fahrräder mit elektr. Tretunterstützung bis 45km/h"
+colnames(data_s5)[2:11] <- c("Kinderunfall",
+                            "KinderunfallaufdemSchulweg",
+                            "Seniorenunfall",
+                            "AnzahlKinder",
+                            "AnzahlKinderaufdemSchulweg",
+                            "AnzahlSenioren",
+                            "AnzahlFussgangeroderFag",
+                            "AnzahlFahrrader",
+                            "AnzahlFahrradermitelektrTretunterstutzungbis25",
+                            "AnzahlFahrradermitelektrTretunterstutzungbis45")
 # colnames(data_s5)
 
 data_s6 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
                       sheet = "Beteiligungen 2")
 data_s6 <- subset(data_s6, select = -c(Bemerkung))
 data_s6 <- subset(data_s6, select = -c(Nr.))
-colnames(data_s6)[5] <- "Motorräder"
-# colnames(data_s6)
+colnames(data_s6)[2:4] <- c("MotorFahrrader", 
+                            "Kleinmotorraderbis50undmax4",
+                            "Motorrader")
+colnames(data_s6)[7:9] <- c("Personenwagen",
+                            "TransportmitteldesOV",
+                            "AndereFahrzeuge")
+colnames(data_s6)
 
 
 data_s7 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx", 
@@ -140,7 +158,12 @@ m5 <- merge(m4, data_s6,
 
 df <- m5
 str(df)
+colnames(df)[1] <- "UnfallNr"
+colnames(df)[26] <- "ObjektNr"
+
 colnames(df)
+
+
 ```
 
 ## Data statistical analysis
@@ -150,6 +173,7 @@ df_escooter <- df
 duplicated_col <- duplicated(t(df_escooter))
 colnames(df_escooter[duplicated_col])
 df_escooter <- df_escooter[!duplicated_col]
+colnames(df_escooter)
 
 df_escooter$month <- format(as.Date(df_escooter$Datum), "%m")
 df_escooter$year <- format(as.Date(df_escooter$Datum), "%Y")
@@ -281,16 +305,20 @@ ggplot(data = sta_LV_year, aes(x = LV, y = n, fill = year)) +
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
 
-sta_sachschaden_year <- df_escooter %>% count(Sachschaden,year)
-sta_sachschaden_year$year <- factor(sta_sachschaden_year$year)
-ggplot(data = sta_sachschaden_year, 
-       aes(x = Sachschaden, y = n, group = year)) +
-  geom_line(aes(colour = year)) +
-  geom_point()
+# sta_sachschaden_year <- df_escooter %>% count(Sachschaden,year)
+# sta_sachschaden_year$year <- factor(sta_sachschaden_year$year)
+# ggplot(data = sta_sachschaden_year, 
+#        aes(x = Sachschaden, y = n, group = year)) +
+#   geom_line(aes(colour = year)) +
+#   geom_point()
+# 
+# ggplot(data = sta_sachschaden_year, aes(x = Sachschaden, y = n, fill = year)) + 
+#     geom_bar(position="stack", stat="identity") +
+#     scale_fill_brewer(palette = "Set2")
+# 
 
-ggplot(data = sta_sachschaden_year, aes(x = Sachschaden, y = n, fill = year)) + 
-    geom_bar(position="stack", stat="identity") +
-    scale_fill_brewer(palette = "Set2")
+hist(df_escooter$Sachschaden)
+
 ```
 
 ### Location
@@ -306,14 +334,14 @@ ggplot(data = sta_Unfallstelle_year, aes(x = Unfallstelle, y = n, fill = year)) 
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
 
-sta_Innerausserorts_year <- df_escooter %>% count(`Inner-/ausserorts`,year)
+sta_Innerausserorts_year <- df_escooter %>% count(Innerausserorts,year)
 sta_Innerausserorts_year$year <- factor(sta_Innerausserorts_year$year)
 ggplot(data = sta_Innerausserorts_year, 
-       aes(x = `Inner-/ausserorts`, y = n, group = year)) +
+       aes(x = Innerausserorts, y = n, group = year)) +
   geom_line(aes(colour = year)) +
   geom_point()
 
-ggplot(data = sta_Innerausserorts_year, aes(x = `Inner-/ausserorts`, y = n, fill = year)) + 
+ggplot(data = sta_Innerausserorts_year, aes(x = Innerausserorts, y = n, fill = year)) + 
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
 
@@ -328,8 +356,6 @@ ggplot(data = sta_Strassenart_year, aes(x = Strassenart, y = n, fill = year)) +
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
 
-colnames(df_escooter)[20] <- "Hochstgeschwindigkeit"
-colnames(df_escooter)[21] <- "Strassenbeleuchtung"
 
 sta_Hochstgeschwindigkeit_year <- df_escooter %>% count(Hochstgeschwindigkeit,year)
 sta_Hochstgeschwindigkeit_year$year <- factor(sta_Hochstgeschwindigkeit_year$year)
@@ -360,16 +386,6 @@ ggplot(data = sta_Strassenbeleuchtung_year, aes(x = Strassenbeleuchtung, y = n, 
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
 
-sta_Strassenzustand_year <- df_escooter %>% count(Strassenzustand,year)
-sta_Strassenzustand_year$year <- factor(sta_Strassenzustand_year$year)
-ggplot(data = sta_Strassenzustand_year, 
-       aes(x = Strassenzustand, y = n, group = year)) +
-  geom_line(aes(colour = year)) +
-  geom_point()
-ggplot(data = sta_Strassenzustand_year, aes(x = Strassenzustand, y = n, fill = year)) + 
-    geom_bar(position="stack", stat="identity") +
-    scale_fill_brewer(palette = "Set2")
-
 
 sta_Verkehrsaufkommen_year <- df_escooter %>% count(Verkehrsaufkommen,year)
 sta_Verkehrsaufkommen_year$year <- factor(sta_Verkehrsaufkommen_year$year)
@@ -380,9 +396,200 @@ ggplot(data = sta_Verkehrsaufkommen_year,
 ggplot(data = sta_Verkehrsaufkommen_year, aes(x = Verkehrsaufkommen, y = n, fill = year)) + 
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette = "Set2")
+
+
+sta_Strassenart_year <- df_escooter %>% count(Strassenart,year)
+sta_Strassenart_year$year <- factor(sta_Strassenart_year$year)
+ggplot(data = sta_Strassenart_year, 
+       aes(x = Strassenart, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+
+ggplot(data = sta_Strassenart_year, aes(x = Strassenart, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+
+```
+
+### Conditions
+```{r condition, echo = TRUE, warning = FALSE, message = FALSE}
+# Road condition
+sta_Strassenzustand_year <- df_escooter %>% count(Strassenzustand,year)
+sta_Strassenzustand_year$year <- factor(sta_Strassenzustand_year$year)
+ggplot(data = sta_Strassenzustand_year, 
+       aes(x = Strassenzustand, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Strassenzustand_year, aes(x = Strassenzustand, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+# Weather
+sta_Witterung_year <- df_escooter %>% count(Witterung,year)
+sta_Witterung_year$year <- factor(sta_Witterung_year$year)
+ggplot(data = sta_Witterung_year, 
+       aes(x = Witterung, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Witterung_year, aes(x = Witterung, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+# Light
+sta_Lichtverhaltnis_year <- df_escooter %>% count(Lichtverhaltnis,year)
+sta_Lichtverhaltnis_year$year <- factor(sta_Lichtverhaltnis_year$year)
+ggplot(data = sta_Lichtverhaltnis_year, 
+       aes(x = Lichtverhaltnis, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Lichtverhaltnis_year, aes(x = Lichtverhaltnis, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+
+
 ```
 
 
+### Object and person
+```{r op, echo = TRUE, warning = FALSE, message = FALSE}
+# Vehicle type
+sta_Fahrzeugart_year <- df_escooter %>% count(Fahrzeugart,year)
+sta_Fahrzeugart_year$year <- factor(sta_Fahrzeugart_year$year)
+ggplot(data = sta_Fahrzeugart_year, 
+       aes(x = Fahrzeugart, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Fahrzeugart_year, aes(x = Fahrzeugart, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+hist(df_escooter$Blutalkoholkonzent)
+hist(df_escooter$Atemalkoholkonzent)
+
+
+# person type
+sta_Personenart_year <- df_escooter %>% count(Personenart,year)
+sta_Personenart_year$year <- factor(sta_Personenart_year$year)
+ggplot(data = sta_Personenart_year, 
+       aes(x = Personenart, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Personenart_year, aes(x = Personenart, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+# Consequences
+sta_Unfallfolgen_year <- df_escooter %>% count(Unfallfolgen,year)
+sta_Unfallfolgen_year$year <- factor(sta_Unfallfolgen_year$year)
+ggplot(data = sta_Unfallfolgen_year, 
+       aes(x = Unfallfolgen, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Unfallfolgen_year, aes(x = Unfallfolgen, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+# Impact
+sta_Anprall_year <- df_escooter %>% count(Anprall,year)
+sta_Anprall_year$year <- factor(sta_Anprall_year$year)
+ggplot(data = sta_Anprall_year, 
+       aes(x = Anprall, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Anprall_year, aes(x = Anprall, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+# Age
+sta_Alter_year <- df_escooter %>% count(Alter,year)
+sta_Alter_year$year <- factor(sta_Alter_year$year)
+ggplot(data = sta_Alter_year, 
+       aes(x = Alter, y = n, group = year)) +
+  geom_line(aes(colour = year)) +
+  geom_point()
+ggplot(data = sta_Alter_year, aes(x = Alter, y = n, fill = year)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_brewer(palette = "Set2")
+
+```
+
+
+#### Stop work here to be continued
+### Accident type
+
+```{r info, echo = TRUE, warning = FALSE, message = FALSE}
+
+sta_unfalltypgruppe <- df_escooter %>% count(UnfalltypGruppenumber)
+
+ggplot(data = sta_unfalltypgruppe, 
+       aes(x = UnfalltypGruppe, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+```
+
+```{r info2, echo = TRUE, warning = FALSE, message = FALSE}
+unfalltyp_table <- df_escooter %>% select('Unfalltyp', 'UnfalltypName')
+unfalltyp_table <- unique(unfalltyp_table)
+
+sta_unfalltyp <- df_escooter %>% count(Unfalltyp)
+sta_unfalltyp <- merge(sta_unfalltyp, unfalltyp_table, by.x = 'Unfalltyp', by.y = 'Unfalltyp')
+
+sta_unfalltyp[order(sta_unfalltyp$Unfalltyp),]
+sta_type <- sta_unfalltyp[order(sta_unfalltyp$n, decreasing = TRUE),]
+
+sta_unfalltyp$Unfalltyp <- as.numeric(sta_unfalltyp$Unfalltyp)
+
+ut0 <- filter(sta_unfalltyp, (Unfalltyp >= 1) & (Unfalltyp <= 9))
+ut0
+
+ut1 <- filter(sta_unfalltyp, (Unfalltyp >= 10) & (Unfalltyp <= 19))
+ut1
+
+ut2 <- filter(sta_unfalltyp, (Unfalltyp >= 20) & (Unfalltyp <= 29))
+ut2
+
+ut3 <- filter(sta_unfalltyp, (Unfalltyp >= 30) & (Unfalltyp <= 39))
+ut3
+
+ut4 <- filter(sta_unfalltyp, (Unfalltyp >= 40) & (Unfalltyp <= 49))
+ut4
+
+ut5 <- filter(sta_unfalltyp, (Unfalltyp >= 50) & (Unfalltyp <= 59))
+ut5
+
+ut6 <- filter(sta_unfalltyp, (Unfalltyp >= 60) & (Unfalltyp <= 69))
+ut6
+
+ut7 <- filter(sta_unfalltyp, (Unfalltyp >= 70) & (Unfalltyp <= 79))
+ut7
+
+ut8 <- filter(sta_unfalltyp, (Unfalltyp >= 80) & (Unfalltyp <= 89))
+ut8
+
+ut9 <- filter(sta_unfalltyp, (Unfalltyp >= 90) & (Unfalltyp <= 99))
+ut9
+
+sta_unfalltyp
+ggplot(data = sta_unfalltyp, 
+       aes(x = Unfalltyp, y = n, group = 1)) +
+  geom_line() +
+  geom_point()
+
+sta_type[1:10,]
+sum(sta_unfalltyp$n)
+
+```
+
+
+
+
+
+## Other
 ```{r map, echo = TRUE, warning = FALSE, message = FALSE}
 zurich_map <- st_read(file.path(dataFolder, "stadtkreis/stadtkreis/Stadtkreis.shp"))
 zurich_map <- st_transform(zurich_map, epsg = 2056)
@@ -446,79 +653,6 @@ map22
 ```
 
 
-
-```{r info, echo = TRUE, warning = FALSE, message = FALSE}
-sta_unfalltypgruppe <- df_escooter %>% count(UnfalltypGruppe)
-
-ggplot(data = sta_unfalltypgruppe, 
-       aes(x = UnfalltypGruppe, y = n, group = 1)) +
-  geom_line() +
-  geom_point()
-
-colnames(df_escooter)
-sta_inout <- df_escooter %>% count(`Inner-/ausserorts`)
-sta_inout
-sta_roadtype <- df_escooter %>% count(Strassenart)
-sta_roadtype
-
-df_escooter %>% count(Strassenzustand)
-```
-
-```{r info2, echo = TRUE, warning = FALSE, message = FALSE}
-colnames(df_escooter)[6] <- "UnfalltypGruppeName"
-colnames(df_escooter)[8] <- "UnfalltypName"
-
-unfalltyp_table <- df_escooter %>% select('Unfalltyp', 'UnfalltypName')
-unfalltyp_table <- unique(unfalltyp_table)
-
-sta_unfalltyp <- df_escooter %>% count(Unfalltyp)
-sta_unfalltyp <- merge(sta_unfalltyp, unfalltyp_table, by.x = 'Unfalltyp', by.y = 'Unfalltyp')
-
-sta_unfalltyp[order(sta_unfalltyp$Unfalltyp),]
-sta_type <- sta_unfalltyp[order(sta_unfalltyp$n, decreasing = TRUE),]
-
-sta_unfalltyp$Unfalltyp <- as.numeric(sta_unfalltyp$Unfalltyp)
-
-ut0 <- filter(sta_unfalltyp, (Unfalltyp >= 1) & (Unfalltyp <= 9))
-ut0
-
-ut1 <- filter(sta_unfalltyp, (Unfalltyp >= 10) & (Unfalltyp <= 19))
-ut1
-
-ut2 <- filter(sta_unfalltyp, (Unfalltyp >= 20) & (Unfalltyp <= 29))
-ut2
-
-ut3 <- filter(sta_unfalltyp, (Unfalltyp >= 30) & (Unfalltyp <= 39))
-ut3
-
-ut4 <- filter(sta_unfalltyp, (Unfalltyp >= 40) & (Unfalltyp <= 49))
-ut4
-
-ut5 <- filter(sta_unfalltyp, (Unfalltyp >= 50) & (Unfalltyp <= 59))
-ut5
-
-ut6 <- filter(sta_unfalltyp, (Unfalltyp >= 60) & (Unfalltyp <= 69))
-ut6
-
-ut7 <- filter(sta_unfalltyp, (Unfalltyp >= 70) & (Unfalltyp <= 79))
-ut7
-
-ut8 <- filter(sta_unfalltyp, (Unfalltyp >= 80) & (Unfalltyp <= 89))
-ut8
-
-ut9 <- filter(sta_unfalltyp, (Unfalltyp >= 90) & (Unfalltyp <= 99))
-ut9
-
-sta_unfalltyp
-ggplot(data = sta_unfalltyp, 
-       aes(x = Unfalltyp, y = n, group = 1)) +
-  geom_line() +
-  geom_point()
-
-sta_type[1:10,]
-sum(sta_unfalltyp$n)
-
-```
 
 ```{r info3, echo = TRUE, warning = FALSE, message = FALSE}
 unique(df_escooter$Hauptursache)
