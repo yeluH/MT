@@ -34,7 +34,8 @@ test_pkg("dplyr")
 test_pkg("sp")
 test_pkg("ggplot2")
 test_pkg("readxl")
-
+test_pkg("proj4")
+test_pkg("terra")
 # test_pkg("leaflet")
 # test_pkg("spatstat")
 # test_pkg("rgdal")
@@ -76,7 +77,7 @@ data_s1 <- read_excel("D:/MT_D/data/E_Trottis_Unfallbericht_2019_2022_note.xlsx"
 colnames(data_s1)[5:12] <- c("UnfalltypGruppenumber", "UnfalltypGroupename", 
                              "Unfalltypnumber", "Unfalltypname",
                              "G", "SV", "LV", "Sachschaden")
-colnames(data_s1)[14:15] <- c("KoordE", "KoordN")
+colnames(data_s1)[15:16] <- c("KoordE", "KoordN")
 data_s1 <- subset(data_s1, select = -c(Bemerkung))
 data_s1 <- subset(data_s1, select = -c(Nr.))
 # colnames(data_s1)
@@ -589,12 +590,12 @@ sum(sta_unfalltyp$n)
 
 
 
-## Other
+## Map
 ```{r map, echo = TRUE, warning = FALSE, message = FALSE}
 zurich_map <- st_read(file.path(dataFolder, "stadtkreis/stadtkreis/Stadtkreis.shp"))
 zurich_map <- st_transform(zurich_map, epsg = 2056)
 
-mapraw <- st_as_sf(df_escooter, coords = c("Koord E", "Koord N"), crs = 2056, remove = FALSE)
+mapraw <- st_as_sf(df_escooter, coords = c("KoordE", "KoordN"), crs = 2056, remove = FALSE)
 
 ggplot() + 
   geom_sf(data = zurich_map, fill = "white", 
@@ -652,7 +653,94 @@ map22
 
 ```
 
+### Crash locations
+```{r locat, echo = TRUE, warning = FALSE, message = FALSE}
+# For google street view images
+lo <- subset(data_s1, select = c('KoordE','KoordN'))
+lo <- st_as_sf(lo, 
+               coords = c("KoordE",
+                          "KoordN"), 
+               crs = 2056, 
+               remove = TRUE)
+lo_2 <- st_transform(lo, 
+                     "+proj=longlat +ellps=WGS84 +datum=WGS84")
+location_lonlat <- st_coordinates(lo_2)
 
+
+ggplot() + 
+  geom_sf(data = zurich_map, fill = "white", 
+          color = "black", size = 0.1) +
+  geom_sf(data = lo_2, alpha = 0.3, show.legend = "point") +
+  theme_void()
+
+
+lo_0 <- st_transform(lo, "+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs +type=crs")
+
+library(sf)
+library(sp)
+library(rgdal)
+lo_0 <- spTransform(lo, CRS("+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs +type=crs"))
+
+
+library(tidyverse)
+library(tidyr)
+lo %>% tidyr::extract(geometry,
+                     c('lat', 'lon'),
+                     '\\((.*), (.*)\\)', 
+                     convert = TRUE)
+
+## Convert CH y/x to WGS lat
+CH.to.WGS.lat <- function (y, x){
+
+	## Converts military to civil and  to unit = 1000km
+	## Auxiliary values (% Bern)
+	y_aux <- (y - 600000)/1000000
+	x_aux <- (x - 200000)/1000000
+  
+	## Process lat
+	lat <- {16.9023892 +
+	3.238272 * x_aux -
+	0.270978 * (y_aux^2) -
+	0.002528 * (x_aux^2) -
+	0.0447   * (y_aux^2) * x_aux -
+	0.0140   * (x_aux^3)}
+    
+	## Unit 10000" to 1 " and converts seconds to degrees (dec)
+	lat <- lat * 100/36
+  
+  	return(lat)  
+}
+
+## Convert CH y/x to WGS long
+CH.to.WGS.lng <- function (y, x){
+
+	## Converts military to civil and  to unit = 1000km
+	## Auxiliary values (% Bern)
+	y_aux <- (y - 600000)/1000000
+	x_aux <- (x - 200000)/1000000
+  
+	## Process long
+	lng <- {2.6779094 +
+	4.728982 * y_aux +
+	0.791484 * y_aux * x_aux +
+	0.1306   * y_aux * (x_aux^2) -
+	0.0436   * (y_aux^3)}
+     
+	## Unit 10000" to 1 " and converts seconds to degrees (dec)
+  	lng <- lng * 100/36
+
+	return(lng)
+}
+
+lo_1 <- lo
+lo_1$lon <- CH.to.WGS.lng(lo$KoordN,
+                          lo$KoordE)
+lo_1$lat <- CH.to.WGS.lat(lo$KoordN,
+                          lo$KoordE)
+
+
+
+```
 
 ```{r info3, echo = TRUE, warning = FALSE, message = FALSE}
 unique(df_escooter$Hauptursache)
@@ -738,4 +826,47 @@ unique(df$Verkehrsaufkommen)
 
 sta_v <- df_escooter %>% count(Verkehrsaufkommen)
 sta_v
+
+
+```
+
+
+```{r info6, echo = TRUE, warning = FALSE, message = FALSE}
+# #list1 <- dir(here::here("D:/MT_D/GSV"))
+# 
+# #list <- data.frame(list1)
+# #write.csv(list, "list.csv")
+# 
+# list_null <- dir(here::here("D:/MT_D/GSV_filtered/null"))
+# list_null <- data.frame(list_null)
+# # write.csv(list_null, "list_null.csv")
+# 
+# list_sky <- dir(here::here("D:/MT_D/GSV_filtered/sky"))
+# list_sky <- data.frame(list_sky)
+# #write.csv(list, "list.csv")
+# 
+# list_indoor <- dir(here::here("D:/MT_D/GSV_filtered/indoor"))
+# list_indoor <- data.frame(list_indoor)
+# 
+# list_roof <- dir(here::here("D:/MT_D/GSV_filtered/roof"))
+# list_roof <- data.frame(list_roof)
+# 
+# 
+# 
+# install.packages("qpcR")                            # Install qpcR package
+# library("qpcR")                                     # Load qpcR package
+# 
+# data_cbind <- qpcR:::cbind.na(list_null, list_sky)           # Bind as columns
+# data_cbind <- qpcR:::cbind.na(data_cbind, list_indoor)
+# data_cbind <- qpcR:::cbind.na(data_cbind, list_roof)
+# list_filter <- data_cbind
+#  
+# write.csv(list_filter, "list_filter.csv")
+# 
+
+
+
+
+
+
 ```
