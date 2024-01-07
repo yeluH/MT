@@ -21,4 +21,7 @@
 
 ## Work_04
 - Load all generated mask .npy files into list and read.
-- Improve the contour function to remove overlapping masks and test.
+- Add a filtering function to remove total-overlapping(subset) masks and test.
+
+## Work_05
+- Label more masks and summarize the statistics of curbs
