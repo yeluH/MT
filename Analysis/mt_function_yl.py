@@ -1,10 +1,12 @@
+# Functions for mt_yl
+# Version update time: 2024/01/09
+
 def show_anns(anns):
     if len(anns) == 0:
         return
     sorted_anns = sorted(anns, key=(lambda x: x['area']), reverse=True)
     ax = plt.gca()
     ax.set_autoscale_on(False)
-
     img = np.ones((sorted_anns[0]['segmentation'].shape[0], sorted_anns[0]['segmentation'].shape[1], 4))
     img[:,:,3] = 0
     for ann in sorted_anns:
@@ -106,7 +108,10 @@ def ffpcontour(image, mask, i):
     plt.show
     return contour_f
 
+# Updated Function
+## Filtering the masks which are too small (<=5) for contour feature/properties calculation
 # Function to find and plot filtered contours (find-filter-plot-contour)
+# Run for each mask of each image
 def ffpcontour_noplot(image, mask, i):
     assert image is not None, "image file could not be read, check with os.path.exists()"
     assert mask is not None, "mask file could not be read, check with os.path.exists()"
@@ -119,22 +124,23 @@ def ffpcontour_noplot(image, mask, i):
           ll.append(len(contours[i]))
     maxl = max(ll)
     maxindex = ll.index(maxl)
-    if (len(contours) == 1):
+    if (len(contours) == 1) and (maxl >= 6):
         contour_f = contours
-    # elif (maxl < 80):
-    #      contour_f = contours[maxindex]
-    else:
+    elif (maxl>=80) :
         contour_f = []
         for i in range(0, len(contours)):
-            # print(i, "len", len(contours[i]))
+        # print(i, "len", len(contours[i]))
             if (len(contours[i]) >= 80):
                 contour_f.append(contours[i])
             else:
                 contour_f = contour_f
-        # print("filtered", "len", len(contour_f), contour_f) 
-    # print("raw",len(contours))
-    # print("filtered", len(contour_f))
+    elif (maxl >= 6):
+        contour_f = []
+        contour_f.append(contours[maxindex])
+    else: 
+        contour_f = []
     return contour_f
+
 
 def cgr(contour):
     assert contour is not None, "image file could not be read, check with os.path.exists()"
@@ -245,6 +251,8 @@ def csga(contours):
         }
     return ga
 
+
+# Updated - Remove the empty contour
 # mask file mf
 def feature_summary(image, mf):
     # Generate a data frame for masks and attributes
@@ -267,9 +275,6 @@ def feature_summary(image, mf):
         mib.append((mm[i][:,:,0])[np.where((mm[i][:,:,0]) != 0)])
         mig.append((mm[i][:,:,1])[np.where((mm[i][:,:,1]) != 0)])
         mir.append((mm[i][:,:,2])[np.where((mm[i][:,:,2]) != 0)])
-    # with warnings.catch_warnings():
-    #     warnings.simplefilter("ignore", category=RuntimeWarning)
-    #     foo = np.nanmean(x, axis=1)
     for i in range(0, len(mm)):
         df.at[i, 'bmean'] = np.mean(mib[i], axis = 0)
         df.at[i,'gmean'] = np.mean(mig[i], axis = 0)
@@ -281,17 +286,68 @@ def feature_summary(image, mf):
         df.at[i,'gstd'] = np.std(mig[i], axis = 0)
         df.at[i,'rstd'] = np.std(mir[i], axis = 0)
     for i in range(0, len(mf)):
-        df.at[i, 'isconvex'] = csga(ffpcontour_noplot(image, mf, i))['isconvex']
-        df.at[i, 'area'] = csga(ffpcontour_noplot(image, mf, i))['area']
-        df.at[i, 'aspect_ratio_wh_s'] = csga(ffpcontour_noplot(image, mf, i))['aspect_ratio_wh_s']
-        df.at[i, 'extent_s'] = csga(ffpcontour_noplot(image, mf, i))['extent_s']
-        df.at[i, 'solidity'] = csga(ffpcontour_noplot(image, mf, i))['solidity']
-        df.at[i, 'aspect_ratio_wh'] = csga(ffpcontour_noplot(image, mf, i))['aspect_ratio_wh']
-        df.at[i, 'extent'] = csga(ffpcontour_noplot(image, mf, i))['extent']
-        df.at[i, 'ed'] = csga(ffpcontour_noplot(image, mf, i))['ed']
-        df.at[i, 'ratio_ell'] = csga(ffpcontour_noplot(image, mf, i))['ratio_ell']
-        df.at[i, 'perimeter'] = csga(ffpcontour_noplot(image, mf, i))['perimeter']
-        df.at[i, 'is_cen_inside'] = csga(ffpcontour_noplot(image, mf, i))['is_cen_inside']
-        df.at[i, 'is_mce_inside'] = csga(ffpcontour_noplot(image, mf, i))['is_mce_inside']
+        con = ffpcontour_noplot(image, mf, i)
+        if len(con) != 0 :
+            df.at[i, 'isconvex'] = csga(con)['isconvex']
+            df.at[i, 'area'] = csga(con)['area']
+            df.at[i, 'aspect_ratio_wh_s'] = csga(con)['aspect_ratio_wh_s']
+            df.at[i, 'extent_s'] = csga(con)['extent_s']
+            df.at[i, 'solidity'] = csga(con)['solidity']
+            df.at[i, 'aspect_ratio_wh'] = csga(con)['aspect_ratio_wh']
+            df.at[i, 'extent'] = csga(con)['extent']
+            df.at[i, 'ed'] = csga(con)['ed']
+            df.at[i, 'ratio_ell'] = csga(con)['ratio_ell']
+            df.at[i, 'perimeter'] = csga(con)['perimeter']
+            df.at[i, 'is_cen_inside'] = csga(con)['is_cen_inside']
+            df.at[i, 'is_mce_inside'] = csga(con)['is_mce_inside']
+        else :
+            df.at[i, 'isconvex'] = np.nan
+            df.at[i, 'area'] = np.nan
+            df.at[i, 'aspect_ratio_wh_s'] = np.nan
+            df.at[i, 'extent_s'] = np.nan
+            df.at[i, 'solidity'] = np.nan
+            df.at[i, 'aspect_ratio_wh'] = np.nan
+            df.at[i, 'extent'] = np.nan
+            df.at[i, 'ed'] = np.nan
+            df.at[i, 'ratio_ell'] = np.nan
+            df.at[i, 'perimeter'] = np.nan
+            df.at[i, 'is_cen_inside'] = np.nan
+            df.at[i, 'is_mce_inside'] = np.nan
+    # Remove the rows with na
+    df = df.dropna()
     return df
+
+
+
+def filter_overlap(mask):
+    mb_new = mask
+    mb_new1 = mask
+    for i in range(0, (len(mb_new)-1)):
+        for j in range((i+1), len(mb_new)):
+            a = cv2.bitwise_and(mb_new[i], mb_new[j])
+            al = len(np.unique(a))
+            # print(i, j, "len", al)
+            if al != 1:
+                s1 = cv2.countNonZero(mb_new[i])
+                s2 = cv2.countNonZero(mb_new[j])
+                b = cv2.bitwise_or(mb_new[i], mb_new[j])
+                # print(i,j, "have intersection")
+                s3 = cv2.countNonZero(b)
+                if s1 >= s2 :
+                    # print(i,">", j)
+                    if s1 == s3:
+                        # print(j, "subset of", i)
+                        mb_new1[j] = 0
+                else:
+                    # print(i,"<", j)
+                    if s2 == s3:
+                        # print(i, "subset of", j)
+                        mb_new1[i] = 0
+    emptyl = []
+    for i in range(0, len(mb_new)):
+        if np.all(mb_new1[i] == 0):
+            emptyl.append(i)           
+    mb_new1 = np.delete(mb_new1, emptyl, 0)
+    # print(len(mask), len(mb_new1))
+    return mb_new1
 
