@@ -18,10 +18,13 @@
 - Write functions to automatically generate mask using SAM, and save it into .npy files.
 - Run the function to all GSV images and save them with 1/2/3/4 according to heading direction for each locations.
 
-
 ### Work_04
 - Load all generated mask .npy files into list and read.
 - Add a filtering function to remove total-overlapping(subset) masks and test.
 
 ### Work_05
 - Label more masks and summarize the statistics of curbs
+
+
+## Issue
+- Images and masks are found not matched! (2024.01.09)
