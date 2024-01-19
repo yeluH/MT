@@ -9,10 +9,8 @@
     - Size are 640*640, fov is 120, pitch is 0.
 - Using Unfall-Nr to identify each accident, location as well as images.
 
-
 ### Work_02
 - Save all GSV images (Google Image View) to a list
-
 
 ### Work_03
 - Write functions to automatically generate mask using SAM, and save it into .npy files.
@@ -25,6 +23,9 @@
 ### Work_05
 - Label more masks and summarize the statistics of curbs
 
+### Work_06
+- Mapping the locations of labelled images
+- More statistics
 
 ## Issue
 - Images and masks are found not matched! (2024.01.09)
