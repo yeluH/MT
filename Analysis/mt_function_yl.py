@@ -172,6 +172,7 @@ def cgr(contour):
     perimeter = cv2.arcLength(c, True) # Arclength
     p_centroid = np.array([float(cx), float(cy)])
     p_masscenter = np.array([float(x), float(y)])
+    # for the following two variable, positive (+1) = inside, negative (-1) = outside, or zero (0) = on an edge
     is_cen_inside = cv2.pointPolygonTest(c, p_centroid, False) # Checking if centroid is inside
     is_mce_inside = cv2.pointPolygonTest(c, p_masscenter, False) # Checking if mass center is inside    
     return {
@@ -190,6 +191,7 @@ def cgr(contour):
     }
 
 
+# Updated, differentiate isconvex and is_cen_inside
 def csga(contours):
     assert contours is not None, "image file could not be read, check with os.path.exists()"
     if len(contours) == 1:
@@ -198,7 +200,7 @@ def csga(contours):
         gal = []
         for i in range(0, (len(contours)-1)):
             gal.append(cgr(contours[i]))
-        isc = []
+        iscon = []
         al = []
         asps = []
         exts = []
@@ -208,10 +210,10 @@ def csga(contours):
         ed = []
         rate = []
         per = []
-        isc = []
-        ism = []
+        iscen = []
+        ismce = []
         for i in range(0, len(gal)):
-            isc.append(gal[0]['isconvex'])
+            iscon.append(gal[0]['isconvex'])
             al.append(gal[0]['area'])
             asps.append(gal[0]['aspect_ratio_wh_s'])
             exts.append(gal[0]['extent_s'])
@@ -221,9 +223,9 @@ def csga(contours):
             ed.append(gal[0]['ed'])
             rate.append(gal[0]['ratio_ell'])
             per.append(gal[0]['perimeter'])
-            isc.append(gal[0]['is_cen_inside'])
-            ism.append(gal[0]['is_mce_inside'])
-        isconvex = np.all(isc)
+            iscen.append(gal[0]['is_cen_inside'])
+            ismce.append(gal[0]['is_mce_inside'])
+        isconvex = np.all(iscon)
         area = np.mean(al, axis = 0)
         aspect_ratio_wh_s = np.mean(asps, axis = 0)
         extent_s = np.mean(exts, axis = 0)
@@ -233,8 +235,8 @@ def csga(contours):
         ed = np.mean(ed, axis = 0)
         ratio_ell = np.mean(rate, axis = 0)
         perimeter = np.mean(per, axis = 0)
-        is_cen_inside = np.mean(isc, axis = 0)
-        is_mce_inside = np.mean(ism, axis = 0)
+        is_cen_inside = np.mean(iscen, axis = 0)
+        is_mce_inside = np.mean(ismce, axis = 0)
         ga = {
             'isconvex': isconvex,
             'area': area,
@@ -250,6 +252,7 @@ def csga(contours):
             'is_mce_inside': is_mce_inside
         }
     return ga
+
 
 
 # Updated - Remove the empty contour
@@ -315,6 +318,8 @@ def feature_summary(image, mf):
             df.at[i, 'is_mce_inside'] = np.nan
     # Remove the rows with na
     df = df.dropna()
+    # Convert true/false to 1 and 0
+    df = df.replace({True: 1, False: 0})
     return df
 
 
