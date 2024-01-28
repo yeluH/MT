@@ -26,6 +26,17 @@
 ### Work_06
 - Mapping the locations of labelled images
 - More statistics
+- Add maps of generated random pseudo points
 
+### Work_07
+- Generate random pseudo points in QGIS using functions:
+  - Random points along line (1 per feature)
+  - Random extract (6%)
+- Load in the generated random pseudo points file (.csv)
+- Save Google Street View Images according to locations
+  - For each location, four images are saved.
+    - Heading are 0, 90, 180, 270 separately.
+    - Size are 640*640, fov is 120, pitch is 0.
+   
 ## Issue
 - Images and masks are found not matched! (2024.01.09)
