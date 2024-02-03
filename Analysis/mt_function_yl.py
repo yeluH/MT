@@ -1,6 +1,21 @@
 # Functions for mt_yl
 # Version update time: 2024/01/09
 
+import os 
+import matplotlib
+from matplotlib import pyplot as plt
+import numpy as np
+import cv2
+import glob
+import shapely
+from shapely.geometry import Polygon
+import shapely.plotting
+import pandas as pd
+from PIL import Image as ima
+import warnings
+from pathlib import Path
+import random
+
 def show_anns(anns):
     if len(anns) == 0:
         return
@@ -142,6 +157,8 @@ def ffpcontour_noplot(image, mask, i):
     return contour_f
 
 
+# Updated 01022024
+# Add location coordinates of extreme points
 def cgr(contour):
     assert contour is not None, "image file could not be read, check with os.path.exists()"
     c = contour
@@ -174,7 +191,15 @@ def cgr(contour):
     p_masscenter = np.array([float(x), float(y)])
     # for the following two variable, positive (+1) = inside, negative (-1) = outside, or zero (0) = on an edge
     is_cen_inside = cv2.pointPolygonTest(c, p_centroid, False) # Checking if centroid is inside
-    is_mce_inside = cv2.pointPolygonTest(c, p_masscenter, False) # Checking if mass center is inside    
+    is_mce_inside = cv2.pointPolygonTest(c, p_masscenter, False) # Checking if mass center is inside
+    leftmost = tuple(c[c[:,:,0].argmin()][0])
+    rightmost = tuple(c[c[:,:,0].argmax()][0])
+    topmost = tuple(c[c[:,:,1].argmin()][0])
+    bottommost = tuple(c[c[:,:,1].argmax()][0])
+    leftm = leftmost[0]
+    rightm = rightmost[0]
+    topm = topmost[1]
+    bottomm = bottommost[1]
     return {
         'isconvex': isconvex,
         'area': area,
@@ -187,11 +212,16 @@ def cgr(contour):
         'ratio_ell': ratio_ell,
         'perimeter': perimeter,
         'is_cen_inside': is_cen_inside,
-        'is_mce_inside': is_mce_inside
+        'is_mce_inside': is_mce_inside,
+        'leftm': leftm,
+        'rightm': rightm,
+        'topm': topm,
+        'bottomm': bottomm
     }
 
 
 # Updated, differentiate isconvex and is_cen_inside
+# Updated 01022024, add location coordinates of extreme points
 def csga(contours):
     assert contours is not None, "image file could not be read, check with os.path.exists()"
     if len(contours) == 1:
@@ -212,6 +242,10 @@ def csga(contours):
         per = []
         iscen = []
         ismce = []
+        lm = []
+        rm = []
+        tm = []
+        bm = []
         for i in range(0, len(gal)):
             iscon.append(gal[0]['isconvex'])
             al.append(gal[0]['area'])
@@ -225,6 +259,10 @@ def csga(contours):
             per.append(gal[0]['perimeter'])
             iscen.append(gal[0]['is_cen_inside'])
             ismce.append(gal[0]['is_mce_inside'])
+            lm.append(gal[0]['leftm'])
+            rm.append(gal[0]['rightm'])
+            tm.append(gal[0]['topm'])
+            bm.append(gal[0]['bottomm'])
         isconvex = np.all(iscon)
         area = np.mean(al, axis = 0)
         aspect_ratio_wh_s = np.mean(asps, axis = 0)
@@ -237,6 +275,10 @@ def csga(contours):
         perimeter = np.mean(per, axis = 0)
         is_cen_inside = np.mean(iscen, axis = 0)
         is_mce_inside = np.mean(ismce, axis = 0)
+        leftm = np.min(lm, axis = 0)
+        rightm = np.max(rm, axis = 0)
+        topm = np.min(tm, axis = 0)
+        bottomm = np.max(bm, axis = 0)
         ga = {
             'isconvex': isconvex,
             'area': area,
@@ -249,13 +291,52 @@ def csga(contours):
             'ratio_ell': ratio_ell,
             'perimeter': perimeter,
             'is_cen_inside': is_cen_inside,
-            'is_mce_inside': is_mce_inside
+            'is_mce_inside': is_mce_inside,
+            'leftm': leftm,
+            'rightm': rightm,
+            'topm': topm,
+            'bottomm': bottomm
         }
     return ga
 
 
+# Updated 01022024 - Distance calculation between RGB points to gray line
+def lineseg_dist(p, a, b):
+    # normalized tangent vector
+    d = np.divide(b - a, np.linalg.norm(b - a))
+    # signed parallel distance components
+    s = np.dot(a - p, d)
+    t = np.dot(p - b, d)
+    # clamped parallel distance
+    h = np.maximum.reduce([s, t, 0])
+    # perpendicular distance component
+    c = np.cross(p - a, d)
+    return np.hypot(h, np.linalg.norm(c))
+
+# Updated 01022024 - Obtain mean and standard deviation of rgb color distances
+def coldistance(mig, mib, mir):
+    cdmean = []
+    cdstd = []
+    for i in range(0,len(mib)):
+        cg = mig[i]
+        cr = mir[i]
+        cb = mib[i]
+        diss = []
+        t2 = np.array([0,0,0])
+        t3 = np.array([255,255,255])
+        for j in range(0, len(cg)):
+            diss.append(lineseg_dist(np.array([cg[j], cr[j], cb[j]]), t2, t3))
+        cdmean.append(np.mean(diss))
+        cdstd.append(np.std(diss))
+    return cdmean, cdstd
+
+
 
 # Updated - Remove the empty contour
+# Updated - Convert true/false to 1/0
+# Updated 01022024 - Add location coordinate value of extreme points
+# Updated 01022024 - Add color 25% and 75% quantile values
+# Updated 01022024 - Add mean and standard deviation of rgb color distances
 # mask file mf
 def feature_summary(image, mf):
     # Generate a data frame for masks and attributes
@@ -264,10 +345,15 @@ def feature_summary(image, mf):
     df = df.assign(gmedian = None, rmedian = None, bmedian = None,
                    gmean = None, rmean = None, bmean = None,
                    gstd = None, rstd = None, bstd = None,
+                   gq25 = None, gq75 = None, rq25 = None,
+                   rq75 = None, bq25 = None, bq75 = None,
+                   cdmean = None, cdstd = None,
                    isconvex = None, area = None, aspect_ratio_wh_s = None,
                    extent_s = None, solidity = None, aspect_ratio_wh = None,
                    extent = None, ed = None, ratio_ell = None,
-                   perimeter = None, is_cen_inside = None, is_mce_inside = None)
+                   perimeter = None, is_cen_inside = None, is_mce_inside = None,
+                   leftm = None, rightm = None, topm = None, 
+                   bottomm = None)
     mm = [] # masked image
     for i in range(0, len(mf)):
         mm.append(cv2.bitwise_and(image, image, mask = mf[i]))
@@ -275,19 +361,28 @@ def feature_summary(image, mf):
     mig = []
     mir = []
     for i in range(0, len(mm)):
-        mib.append((mm[i][:,:,0])[np.where((mm[i][:,:,0]) != 0)])
-        mig.append((mm[i][:,:,1])[np.where((mm[i][:,:,1]) != 0)])
-        mir.append((mm[i][:,:,2])[np.where((mm[i][:,:,2]) != 0)])
+        mib.append((mm[i][:,:,0])[np.where(((mm[i][:,:,0]) != 0) | ((mm[i][:,:,1]) != 0) | ((mm[i][:,:,2]) != 0))])
+        mig.append((mm[i][:,:,1])[np.where(((mm[i][:,:,0]) != 0) | ((mm[i][:,:,1]) != 0) | ((mm[i][:,:,2]) != 0))])
+        mir.append((mm[i][:,:,2])[np.where(((mm[i][:,:,0]) != 0) | ((mm[i][:,:,1]) != 0) | ((mm[i][:,:,2]) != 0))])
+    cm, cs = coldistance(mig, mib, mir)
     for i in range(0, len(mm)):
         df.at[i, 'bmean'] = np.mean(mib[i], axis = 0)
-        df.at[i,'gmean'] = np.mean(mig[i], axis = 0)
-        df.at[i,'rmean'] = np.mean(mir[i], axis = 0)
-        df.at[i,'bmedian'] = np.median(mib[i], axis = 0)
-        df.at[i,'gmedian'] = np.median(mig[i], axis = 0)
-        df.at[i,'rmedian'] = np.median(mir[i], axis = 0)
-        df.at[i,'bstd'] = np.std(mib[i], axis = 0)
-        df.at[i,'gstd'] = np.std(mig[i], axis = 0)
-        df.at[i,'rstd'] = np.std(mir[i], axis = 0)
+        df.at[i, 'gmean'] = np.mean(mig[i], axis = 0)
+        df.at[i, 'rmean'] = np.mean(mir[i], axis = 0)
+        df.at[i, 'bmedian'] = np.median(mib[i], axis = 0)
+        df.at[i, 'gmedian'] = np.median(mig[i], axis = 0)
+        df.at[i, 'rmedian'] = np.median(mir[i], axis = 0)
+        df.at[i, 'bstd'] = np.std(mib[i], axis = 0)
+        df.at[i, 'gstd'] = np.std(mig[i], axis = 0)
+        df.at[i, 'rstd'] = np.std(mir[i], axis = 0)
+        df.at[i, 'bq25'] = np.quantile(mib[i], 0.25, axis = 0)
+        df.at[i, 'bq75'] = np.quantile(mib[i], 0.75, axis = 0)
+        df.at[i, 'gq25'] = np.quantile(mig[i], 0.25, axis = 0)
+        df.at[i, 'gq75'] = np.quantile(mig[i], 0.75, axis = 0)
+        df.at[i, 'rq25'] = np.quantile(mir[i], 0.25, axis = 0)
+        df.at[i, 'rq75'] = np.quantile(mir[i], 0.75, axis = 0)
+        df.at[i, 'cdmean'] = cm[i]
+        df.at[i, 'cdstd'] = cs[i]
     for i in range(0, len(mf)):
         con = ffpcontour_noplot(image, mf, i)
         if len(con) != 0 :
@@ -303,6 +398,10 @@ def feature_summary(image, mf):
             df.at[i, 'perimeter'] = csga(con)['perimeter']
             df.at[i, 'is_cen_inside'] = csga(con)['is_cen_inside']
             df.at[i, 'is_mce_inside'] = csga(con)['is_mce_inside']
+            df.at[i, 'leftm'] = csga(con)['leftm']
+            df.at[i, 'rightm'] = csga(con)['rightm']
+            df.at[i, 'topm'] = csga(con)['topm']
+            df.at[i, 'bottomm'] = csga(con)['bottomm']
         else :
             df.at[i, 'isconvex'] = np.nan
             df.at[i, 'area'] = np.nan
@@ -316,6 +415,10 @@ def feature_summary(image, mf):
             df.at[i, 'perimeter'] = np.nan
             df.at[i, 'is_cen_inside'] = np.nan
             df.at[i, 'is_mce_inside'] = np.nan
+            df.at[i, 'leftm'] = np.nan
+            df.at[i, 'rightm'] = np.nan
+            df.at[i, 'topm'] = np.nan
+            df.at[i, 'bottomm'] = np.nan
     # Remove the rows with na
     df = df.dropna()
     # Convert true/false to 1 and 0
