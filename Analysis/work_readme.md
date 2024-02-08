@@ -30,8 +30,10 @@
     - Combine the two labeled dataframes from above work and generate statistics of 7 labelgroups: sky, infrastructure, vegetation, building, means_of_transportation, other, curb and tram_line. (3934 masks labelled including 49 curbs)
   #### Work_05_3
     - Update function to only consider masks which are located in the lower part of the images
+    - Add index for gemetric attributes, coordinate values of extreme points, including topmost, bottommost, leftmost, rightmost
     - Add more index for spectral features like RGB quantile value and color distance
-    - Redo the statistics summary of all variables for 7 labelgroups.
+    - Redo the statistics summary of all variables for 7 labelgroups
+    - (Local version and science_app version)
       
 ### Work_06
 - Mapping the locations of labelled images
@@ -48,6 +50,12 @@
     - Heading are 0, 90, 180, 270 separately.
     - Size are 640*640, fov is 120, pitch is 0.
 - Run functions to generate SAM output for gsv_rpf (Google Street View - random pseudo points - filtered).
-  
+
+### Work_08
+- Classification of label groups on the newly updated features summary
+  - Unsupervised machine learning
+  - Supervised machine learning
+- Extraction of curbs
+
 ## Issue
 - Images and masks are found not matched! (2024.01.09)
