@@ -157,13 +157,14 @@ def ffpcontour_noplot(image, mask, i):
     return contour_f
 
 
-# Updated 01022024
-# Add location coordinates of extreme points
+# Updated 01022024 Add location coordinates of extreme points
+# Updated 08022024 Add orientation(in fitEllipse) and angle of rotation(in rotated rectangle)
 def cgr(contour):
     assert contour is not None, "image file could not be read, check with os.path.exists()"
     c = contour
     isconvex = cv2.isContourConvex(c) # Checking convexity
     (x,y), (w,h), ar = cv2.minAreaRect(c) # Rotated rectangle with minimum area
+    ar_r = ar # Angle of rotation in rotated rectangle
     M = cv2.moments(c) # Moments
     area = cv2.contourArea(c) # Area 
     if (M['m00'] != 0):
@@ -184,6 +185,7 @@ def cgr(contour):
     aspect_ratio_wh = float(w)/h  # Aspect ratio
     extent = float(area)/(w*h) # Extent
     (xe,ye),(MA,ma),ae = cv2.fitEllipse(c)
+    ar_e = ae # Angle of rotated ellipse, orientation
     ed = np.sqrt(4*area/np.pi) # Equivalent Diameter
     ratio_ell = float(ma)/MA
     perimeter = cv2.arcLength(c, True) # Arclength
@@ -208,6 +210,8 @@ def cgr(contour):
         'solidity': solidity,
         'aspect_ratio_wh': aspect_ratio_wh,
         'extent': extent,
+        'orien_rre': ar_r,
+        'orien_ell': ar_e,
         'ed': ed,
         'ratio_ell': ratio_ell,
         'perimeter': perimeter,
@@ -220,8 +224,10 @@ def cgr(contour):
     }
 
 
+
 # Updated, differentiate isconvex and is_cen_inside
 # Updated 01022024, add location coordinates of extreme points
+# Updated 08022024, add orientation and angle of rotation
 def csga(contours):
     assert contours is not None, "image file could not be read, check with os.path.exists()"
     if len(contours) == 1:
@@ -237,6 +243,8 @@ def csga(contours):
         sol = []
         asp = []
         ext = []
+        anr = []
+        ane = []
         ed = []
         rate = []
         per = []
@@ -254,6 +262,8 @@ def csga(contours):
             sol.append(gal[0]['solidity'])
             asp.append(gal[0]['aspect_ratio_wh'])
             ext.append(gal[0]['extent'])
+            anr.append(gal[0]['orien_rre'])
+            ane.append(gal[0]['orien_ell'])
             ed.append(gal[0]['ed'])
             rate.append(gal[0]['ratio_ell'])
             per.append(gal[0]['perimeter'])
@@ -270,6 +280,8 @@ def csga(contours):
         solidity = np.mean(sol, axis = 0)
         aspect_ratio_wh = np.mean(asp, axis = 0)
         extent = np.mean(ext, axis = 0)
+        ar_r = np.mean(anr, axis = 0)
+        ar_e = np.mean(ane, axis = 0)
         ed = np.mean(ed, axis = 0)
         ratio_ell = np.mean(rate, axis = 0)
         perimeter = np.mean(per, axis = 0)
@@ -287,6 +299,8 @@ def csga(contours):
             'solidity': solidity,
             'aspect_ratio_wh': aspect_ratio_wh,
             'extent': extent,
+            'orien_rre': ar_r,
+            'orien_ell': ar_e,
             'ed': ed,
             'ratio_ell': ratio_ell,
             'perimeter': perimeter,
@@ -298,7 +312,6 @@ def csga(contours):
             'bottomm': bottomm
         }
     return ga
-
 
 # Updated 01022024 - Distance calculation between RGB points to gray line
 def lineseg_dist(p, a, b):
@@ -336,7 +349,7 @@ def coldistance(mig, mib, mir):
 # Updated - Convert true/false to 1/0
 # Updated 01022024 - Add location coordinate value of extreme points
 # Updated 01022024 - Add color 25% and 75% quantile values
-# Updated 01022024 - Add mean and standard deviation of rgb color distances
+# Updated 08022024 - Add orientation and angle of rotation
 # mask file mf
 def feature_summary(image, mf):
     # Generate a data frame for masks and attributes
@@ -350,7 +363,8 @@ def feature_summary(image, mf):
                    cdmean = None, cdstd = None,
                    isconvex = None, area = None, aspect_ratio_wh_s = None,
                    extent_s = None, solidity = None, aspect_ratio_wh = None,
-                   extent = None, ed = None, ratio_ell = None,
+                   extent = None, orien_rre = None, orien_ell = None,
+                   ed = None, ratio_ell = None,
                    perimeter = None, is_cen_inside = None, is_mce_inside = None,
                    leftm = None, rightm = None, topm = None, 
                    bottomm = None)
@@ -394,6 +408,8 @@ def feature_summary(image, mf):
             df.at[i, 'aspect_ratio_wh'] = csga(con)['aspect_ratio_wh']
             df.at[i, 'extent'] = csga(con)['extent']
             df.at[i, 'ed'] = csga(con)['ed']
+            df.at[i, 'orien_rre'] = csga(con)['orien_rre']
+            df.at[i, 'orien_ell'] = csga(con)['orien_ell']
             df.at[i, 'ratio_ell'] = csga(con)['ratio_ell']
             df.at[i, 'perimeter'] = csga(con)['perimeter']
             df.at[i, 'is_cen_inside'] = csga(con)['is_cen_inside']
@@ -411,6 +427,8 @@ def feature_summary(image, mf):
             df.at[i, 'aspect_ratio_wh'] = np.nan
             df.at[i, 'extent'] = np.nan
             df.at[i, 'ed'] = np.nan
+            df.at[i, 'orien_rre'] = np.nan
+            df.at[i, 'orien_ell'] = np.nan
             df.at[i, 'ratio_ell'] = np.nan
             df.at[i, 'perimeter'] = np.nan
             df.at[i, 'is_cen_inside'] = np.nan
@@ -424,7 +442,6 @@ def feature_summary(image, mf):
     # Convert true/false to 1 and 0
     df = df.replace({True: 1, False: 0})
     return df
-
 
 
 def filter_overlap(mask):
