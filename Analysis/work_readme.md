@@ -61,4 +61,4 @@
 - Find the suitable variables for classification and extraction of curbs
 
 ## Issue
-- Images and masks are found not matched! (2024.01.09)
+- Images and masks are found not matched! (2024.01.09)   <Solved>
