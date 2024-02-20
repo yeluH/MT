@@ -35,6 +35,8 @@
     - Redo the statistics summary of all variables for 7 labelgroups
     - (Local version and science_app version)
     - Add index for orientation (of fitting ellipse) and angle of rotation (of rotated rectangle) to feature summary
+  #### Work_05_4
+    - Label more images of random accident locations
       
 ### Work_06
 - Mapping the locations of labelled images
