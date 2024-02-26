@@ -62,5 +62,12 @@
 - Extraction of curbs
 - Find the suitable variables for classification and extraction of curbs
 
+### Work_09
+- Apply the feature summary functions to images of accident points and pseudo-absence points
+  #### Work_09_0_accident
+  #### Work_09_1_pseudo
+  #### Work_09_2_model
+    - Apply the classification model to dataframes of pseudo-absence points
+
 ## Issue
 - Images and masks are found not matched! (2024.01.09)   <Solved>
