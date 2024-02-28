@@ -18,7 +18,7 @@
 
 
 #### my_random_forest_3_ground7
-- for entropy calculation of ground scene
+- for entropy calculation of ground scene (Only for the infrastructure label group recognized using models above)
 - 7 groups: 
   - 0 bike_lane, 1 curb, 2 ground_sign, 3 manhole, 4 other, 5 pavement, 6 road
 - Variables 32:
