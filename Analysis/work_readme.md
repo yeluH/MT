@@ -37,6 +37,7 @@
     - Add index for orientation (of fitting ellipse) and angle of rotation (of rotated rectangle) to feature summary
   #### Work_05_4
     - Label more images of random accident locations
+    - Postponed (because current model is already ok for further analysis)
       
 ### Work_06
 - Mapping the locations of labelled images
@@ -61,6 +62,10 @@
 - Evaluation of classification by calculating accuracy, precision and recall
 - Extraction of curbs
 - Find the suitable variables for classification and extraction of curbs
+- Three classification models obtained in total:
+  - *my_random_forest_1.joblib*: for curb extraction (presence and number)
+  - *my_random_forest_2_whole7*: for entropy calculation of whole scene and pattern index
+  - *my_random_forest_3_ground7*: for entropy calculation of ground scene
 
 ### Work_09
 - Apply the feature summary functions to images of accident points and pseudo-absence points
@@ -68,6 +73,18 @@
   #### Work_09_1_pseudo
   #### Work_09_2_model
     - Apply the classification model to dataframes of pseudo-absence points
+  #### Work_09_3_entropy
+    - Write functions to calculate entropy of each direction in each location *(base = default e)*
+    - Apply to predicted labelgroup for both accident and pseudo point dataframes
+    - Including two entropy indices
+      - Entropy for the whole scene
+        - 1 curb, 2 infrastructure, 0 building, 3 means_of_transportation, 4 other, 5 sky, 6 vegetation
+      - Entropy for the ground scene
+        - Using the 1 & 2 label groups from above (just curb and infrastructure)
+        - 0 bike lane, 1 curb, 2 ground_sign, 3 manhole, 4 other, 5 pavement, 6 road
+  #### Work_09_4_image_entropy
+    - Write functions to calculate entropy of images *(base = default e)*
+    - Apply to 295×4 images for accident points and 792×4 images for pseudo points
 
 ## Issue
 - Images and masks are found not matched! (2024.01.09)   <Solved>
