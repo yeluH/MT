@@ -15,6 +15,7 @@ from PIL import Image as ima
 import warnings
 from pathlib import Path
 import random
+from scipy.stats import entropy
 
 def show_anns(anns):
     if len(anns) == 0:
@@ -476,3 +477,35 @@ def filter_overlap(mask):
     # print(len(mask), len(mb_new1))
     return mb_new1
 
+
+# Updated 04032024 - For entropy calculation with recognized/predicted objects/masks 
+# The input dataframe should include columns 'id', 'Nr', 'p', 'count'
+def entropy_calculate(df):
+    total = df.groupby(['id','dir']).sum().reset_index().rename(columns = {'count':'sum'})
+    total = total.drop(['p'], axis = 1)
+    dft = pd.merge(df, total, on = ['id', 'dir'])
+    dft['percentage'] = dft['count']/dft['sum']
+    dft['id_dir'] = dft['id'] + dft['dir']
+    grouped = dft.groupby('id_dir')
+    grouped_arrays_list = {id_dir: dft['percentage'].iloc[indices].values for id_dir, indices in grouped.groups.items()}
+    iddirl = list(grouped_arrays_list.keys())
+    en = []
+    for i in range(0, len(iddirl)):
+        l = grouped_arrays_list[iddirl[i]]
+        e = entropy(l)
+        en.append(e)
+    dfen = pd.DataFrame()
+    dfen['id_dir'] = iddirl
+    dfen['entropy'] = en
+    dfentropy = pd.merge(dft, dfen, on = ['id_dir'])
+    return dfentropy
+
+
+# Updated 04032024 - For calculating image entropy
+def entropy_img(img):
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    _bins = 128
+    hist, _ = np.histogram(img_gray.ravel(), bins = _bins, range = (0, _bins))
+    prob_dist = hist / hist.sum()
+    image_entropy = entropy(prob_dist) # Default base e
+    return image_entropy
