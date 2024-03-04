@@ -64,8 +64,8 @@
 - Find the suitable variables for classification and extraction of curbs
 - Three classification models obtained in total:
   - *my_random_forest_1.joblib*: for curb extraction (presence and number)
-  - *my_random_forest_2_whole7*: for entropy calculation of whole scene and pattern index
-  - *my_random_forest_3_ground7*: for entropy calculation of ground scene
+  - *my_random_forest_2_whole7.joblib*: for entropy calculation of whole scene and pattern index
+  - *my_random_forest_3_ground7.joblib*: for entropy calculation of ground scene
 
 ### Work_09
 - Apply the feature summary functions to images of accident points and pseudo-absence points
