@@ -43,6 +43,11 @@
 - Mapping the locations of labelled images
 - More statistics
 - Add maps of generated random pseudo points
+  #### Work_06_1
+    - Visualize maps of predicted/recogized curbs in both accident and pseudo datasets
+  #### Work_06_2
+    - Visualize maps of entropy variables(image entropy, whole-scene mask entropy, ground-scene mask entropy)
+
 
 ### Work_07
 - Generate random pseudo points in QGIS using functions:
@@ -85,6 +90,14 @@
   #### Work_09_4_image_entropy
     - Write functions to calculate entropy of images *(base = default e)*
     - Apply to 295×4 images for accident points and 792×4 images for pseudo points
+
+### Work_10
+- Build model for regression analysis
+  #### Work_10_0_variable_curb
+  - Summarize all the curb-related variables extracted from SAM result
+  #### Work_10_1_regression 
+  - Apply OLS regression model
+  - Optimize model and variables
 
 ## Issue
 - Images and masks are found not matched! (2024.01.09)   <Solved>
