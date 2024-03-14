@@ -98,6 +98,20 @@
   #### Work_10_1_regression 
   - Apply OLS regression model
   - Optimize model and variables
+  #### Work_10_2_regression_raw 
+  - Regression model built with accident data
+  - For relationship between accident presence and severity with other conditions:
+      - weather/light/road/traffic/drivers/time
+  #### Work_10_3_regression_tt
+  - Regression model built with traffic-transport related data
+  - For relationship between accident presence and severity with tt variables:
+      - Network data: bicycle lanes, bus lanes, motorized vehicles lanes, tram track, road width;
+      - Transport data：traffic area, signalized speed limit, right-of-way, red lights, stop signs, pedestrain crossing, junction, complex intersections, public parking spaces
+  #### Work_10_4_regression_comb
+  - Regression model built with all variables including curb-infrastructure, raw-condition, traffic-transport.
+
+### Work_11
+- Build model for accident presence & severity prediction analysis
 
 ## Issue
 - Images and masks are found not matched! (2024.01.09)   <Solved>
