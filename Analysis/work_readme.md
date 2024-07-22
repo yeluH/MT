@@ -36,9 +36,9 @@
   #### Work_05_2
     - Combine the two labeled dataframes from above work and generate statistics of 7 labelgroups: sky, infrastructure, vegetation, building, means_of_transportation, other, curb and tram_line. (3934 masks labelled including 49 curbs)
       ##### Work_05_2_original
-      = Work_05_2
+      - = Work_05_2
       ##### Work_05_2_forthesis
-      For thesis use: generate plots for illustrating color distance 
+      - For thesis use: generate plots for illustrating color distance 
   #### Work_05_3
     - Update function to only consider masks which are located in the lower part of the images
     - Add index for geometric attributes, coordinate values of extreme points, including topmost, bottommost, leftmost, rightmost
@@ -46,8 +46,8 @@
     - Redo the statistics summary of all variables for 7 labelgroups
     - (Local version and science_app version)
     - Add index for orientation (of fitting ellipse) and angle of rotation (of rotated rectangle) to feature summary
-    ##### Work_05_3_lo
-    Consider only lower part of the images
+      ##### Work_05_3_lo
+      - Consider only lower part of the images
   #### Work_05_4
     - Label more images of random accident locations
     - Postponed (because current model is already ok for further analysis)
@@ -89,9 +89,9 @@
   #### Work_08_0
   #### Work_08_1
   #### Work_08_2
-    Update the classification models and generate images for thesis.
-    ##### Work_08_2_redo0
-    ##### Work_08_2_redo1
+    - Update the classification models and generate images for thesis
+      ##### Work_08_2_redo0
+      ##### Work_08_2_redo1
 
 
 ### Work_09
@@ -109,52 +109,65 @@
       - Entropy for the ground scene
         - Using the 1 & 2 label groups from above (just curb and infrastructure)
         - 0 bike lane, 1 curb, 2 ground_sign, 3 manhole, 4 other, 5 pavement, 6 road
-    ##### Work_09_3_entropy_redo_correct
-    Correct mistake in chosen test and train sets (choosing new test and train datasets)
+      ##### Work_09_3_entropy_redo_correct
+      - Correct mistake in chosen test and train sets (choosing new test and train datasets)
   #### Work_09_4_image_entropy
     - Write functions to calculate entropy of images *(base = default e)*
     - Apply to 295×4 images for accident points and 792×4 images for pseudo points
   #### Work_09_5_summary_of_entropy
     - Combine three entropy variables together: image entropy, mask entropy of whole scene, mask entropy of ground scene
-    ##### Work_09_5_summary_of_entropy_redo_correct
-    Correct mistake by using corrected classification model to calculate entropy values
+      ##### Work_09_5_summary_of_entropy_redo_correct
+      - Correct mistake by using corrected classification model to calculate entropy values
 
 
 ### Work_10
 - Build model for regression analysis
   #### Work_10_0_variable_curb
   - Summarize all the curb-related variables extracted from SAM result
-  #### Work_10_1_regression 
-  - Apply OLS regression model
-  - Optimize model and variables
+  #### Work_10_1_regression_curb_rp
+  - Apply OLS regression model and optimize model and variables
+  - For random pseudo points
+  #### Work_10_1_regression_curb
+  - Apply OLS regression model and optimize model and variables
+  - For accident points
   #### Work_10_2_regression_raw 
   - Regression model built with accident data
   - For relationship between accident presence and severity with other conditions:
       - weather/light/road/traffic/drivers/time
-  #### Work_10_3_regression_tt
+  #### Work_10_3_trafficcount
+  #### Work_10_3_trafficcount_rp
+  #### Work_10_4_variables_tt
+  #### Work_10_4_variables_tt_rp
+  #### Work_10_5_regression_tt
   - Regression model built with traffic-transport related data
   - For relationship between accident presence and severity with tt variables:
       - Network data: bicycle lanes, bus lanes, motorized vehicles lanes, tram track, road width;
       - Transport data：traffic area, signalized speed limit, right-of-way, red lights, stop signs, pedestrain crossing, junction, complex intersections, public parking spaces
+  #### Work_10_5_regression_tt_rp
   #### Work_10_4_regression_comb
   - Regression model built with all variables including curb-infrastructure, raw-condition, traffic-transport.
+  #### Work_10_4_regression_comb_rp
+
 
 ### Work_11 (removed)
 (- Build model for accident presence & severity prediction analysis)
 
 ### Work_12
+- Build model for 
   #### Work_12_0
   - Prepare koordinates of valid accident points
   #### Work_12_1 & Work_12_1_raster
   #### Work_12_2
   #### Work_12_3_crv_rp
   #### Work_12_4_regression_allv
-    allv
-    allv_i
-    allv_2
+  - blabla
+      ##### allv
+      ##### allv_i
+      ##### allv_2
   #### Work_12_5_regression_allv_gam
 
 ### Work_13
+- blabla
   #### Work_13_0_regression_acp
   #### Work_13_1_regression_gam
   
@@ -162,3 +175,4 @@
 
 ## Issue
 - Images and masks are found not matched! (2024.01.09)   <Solved>
+- Labels for previous classification models (for mask entropy of ground scene) were not all covered in train datasets. (2024.04) <Solved> 
