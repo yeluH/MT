@@ -110,14 +110,14 @@
         - Using the 1 & 2 label groups from above (just curb and infrastructure)
         - 0 bike lane, 1 curb, 2 ground_sign, 3 manhole, 4 other, 5 pavement, 6 road
     ##### Work_09_3_entropy_redo_correct
-      Correct mistake in chosen test and train sets (choosing new test and train datasets)
+    - Correct mistake in chosen test and train sets (choosing new test and train datasets)
   #### Work_09_4_image_entropy
     - Write functions to calculate entropy of images *(base = default e)*
     - Apply to 295×4 images for accident points and 792×4 images for pseudo points
   #### Work_09_5_summary_of_entropy
     - Combine three entropy variables together: image entropy, mask entropy of whole scene, mask entropy of ground scene
     ##### Work_09_5_summary_of_entropy_redo_correct
-      Correct mistake by using corrected classification model to calculate entropy values
+    - Correct mistake by using corrected classification model to calculate entropy values
 
 
 ### Work_10
