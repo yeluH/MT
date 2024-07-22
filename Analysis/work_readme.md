@@ -32,7 +32,7 @@
   #### Work_05_1
     - Label images of random 10 accident locations and do histogram of curbs
       ##### Work_05_1_forthesis
-      For thesis use: generate images of four directions of chosen locations: id 99900060164616, 99900051076121
+      - For thesis use: generate images of four directions of chosen locations: id 99900060164616, 99900051076121
   #### Work_05_2
     - Combine the two labeled dataframes from above work and generate statistics of 7 labelgroups: sky, infrastructure, vegetation, building, means_of_transportation, other, curb and tram_line. (3934 masks labelled including 49 curbs)
       ##### Work_05_2_original
