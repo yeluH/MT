@@ -36,9 +36,9 @@
   #### Work_05_2
     - Combine the two labeled dataframes from above work and generate statistics of 7 labelgroups: sky, infrastructure, vegetation, building, means_of_transportation, other, curb and tram_line. (3934 masks labelled including 49 curbs)
     ##### Work_05_2_original
-      = Work_05_2
+      * = Work_05_2
     ##### Work_05_2_forthesis
-      For thesis use: generate plots for illustrating color distance 
+      * For thesis use: generate plots for illustrating color distance 
   #### Work_05_3
     - Update function to only consider masks which are located in the lower part of the images
     - Add index for geometric attributes, coordinate values of extreme points, including topmost, bottommost, leftmost, rightmost
@@ -47,7 +47,7 @@
     - (Local version and science_app version)
     - Add index for orientation (of fitting ellipse) and angle of rotation (of rotated rectangle) to feature summary
     ##### Work_05_3_lo
-    Consider only lower part of the images
+      * Consider only lower part of the images
   #### Work_05_4
     - Label more images of random accident locations
     - Postponed (because current model is already ok for further analysis)
@@ -110,14 +110,14 @@
         - Using the 1 & 2 label groups from above (just curb and infrastructure)
         - 0 bike lane, 1 curb, 2 ground_sign, 3 manhole, 4 other, 5 pavement, 6 road
     ##### Work_09_3_entropy_redo_correct
-    - Correct mistake in chosen test and train sets (choosing new test and train datasets)
+      * Correct mistake in chosen test and train sets (choosing new test and train datasets)
   #### Work_09_4_image_entropy
     - Write functions to calculate entropy of images *(base = default e)*
     - Apply to 295×4 images for accident points and 792×4 images for pseudo points
   #### Work_09_5_summary_of_entropy
     - Combine three entropy variables together: image entropy, mask entropy of whole scene, mask entropy of ground scene
     ##### Work_09_5_summary_of_entropy_redo_correct
-    - Correct mistake by using corrected classification model to calculate entropy values
+      * Correct mistake by using corrected classification model to calculate entropy values
 
 
 ### Work_10
