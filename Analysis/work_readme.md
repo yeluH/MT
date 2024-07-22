@@ -173,6 +173,8 @@
   
 
 
-## Issue
+
+
+## Issues
 - Images and masks are found not matched! (2024.01.09)   <Solved>
 - Labels for previous classification models (for mask entropy of ground scene) were not all covered in train datasets. (2024.04) <Solved> 
