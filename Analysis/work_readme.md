@@ -1,5 +1,6 @@
 ## Workflow
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_01
 - Input data and save to dataframe
@@ -10,20 +11,24 @@
     - Size are 640*640, fov is 120, pitch is 0.
 - Using Unfall-Nr to identify each accident, location as well as images.
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_02
 - Save all GSV images (Google Image View) to a list
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_03
 - Write functions to automatically generate mask using SAM, and save it into .npy files.
 - Run the function to all GSV images and save them with 1/2/3/4 according to heading direction for each locations.
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_04
 - Load all generated mask .npy files into list and read.
 - Add a filtering function to remove total-overlapping(subset) masks and test.
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_05
 - Label more masks and summarize the statistics of curbs
@@ -52,7 +57,8 @@
     - Label more images of random accident locations
     - Postponed (because current model is already ok for further analysis)
 
-      
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
+     
 ### Work_06
 - Mapping the locations of labelled images
 - More statistics
@@ -62,6 +68,7 @@
   #### Work_06_2
     - Visualize maps of entropy variables(image entropy, whole-scene mask entropy, ground-scene mask entropy)
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_07
 - Generate random pseudo points in QGIS using functions:
@@ -74,6 +81,7 @@
     - Size are 640*640, fov is 120, pitch is 0.
 - Run functions to generate SAM output for gsv_rpf (Google Street View - random pseudo points - filtered).
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_08
 - Classification of label groups on the newly updated features summary
@@ -93,6 +101,7 @@
       ##### Work_08_2_redo0
       ##### Work_08_2_redo1
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_09
 - Apply the feature summary functions to images of accident points and pseudo-absence points
@@ -119,9 +128,10 @@
       ##### Work_09_5_summary_of_entropy_redo_correct
       - Correct mistake by using corrected classification model to calculate entropy values
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_10
-- Build model for regression analysis
+- Preparing for regression analysis
   #### Work_10_0_variable_curb
   - Summarize all the curb-related variables extracted from SAM result
   #### Work_10_1_regression_curb_rp
@@ -148,34 +158,51 @@
   - Regression model built with all variables including curb-infrastructure, raw-condition, traffic-transport.
   #### Work_10_4_regression_comb_rp
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_11 (removed)
 (- Build model for accident presence & severity prediction analysis)
 
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
+
 ### Work_12
-- Build model for 
+- Result visualization (plot maps)
+- Time series analysis
+- Build regression model for severity of accident
+  - Build OLS regression model for both presence and severity variables
+  - Build classification model for presence variables
+  - Build prediction model for both presence and severity variables
   #### Work_12_0
   - Prepare koordinates of valid accident points
   #### Work_12_1 & Work_12_1_raster
+  - Plot map results
   #### Work_12_2
+  - Time series analysis for accident
   #### Work_12_3_crv_rp
+  - Merge curb related variables for pseudo points
   #### Work_12_4_regression_allv
-  - blabla
-      ##### allv
+  - Among all accident points, build OLS regression model for accident severity, including presence (of person injury, property damage; light injury, severe injury) and value (number of lightly injured person, severely injured person, amount of property damage)
+  - Apply random forest classification model for presence variables, presence (of person injury, property damage; light injury, severe injury)
       ##### allv_i
+      - Add prediction based on regression model
+      - Add evaluation measures for classification model and plot confusion matrix as well as variables' importance
       ##### allv_2
+      - Similar to allv_i but reduce number of variables based on their performance in regression model
   #### Work_12_5_regression_allv_gam
+  - Build GAM regression model for both presence and severity variables
+  - Build prediction model
+
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ### Work_13
-- blabla
+- Build regression model for presence of accident (accident 1, pseudo 0)
   #### Work_13_0_regression_acp
+  - Apply OLS regression model
   #### Work_13_1_regression_gam
-  
+  - Apply linear gam regression model
 
-$~~~~~~~~~~~$
-$~~~~~~~~~~~$
-
+$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
 ## Issues
 - Images and masks are found not matched! (2024.01.09)   <Solved>
-- Labels for previous classification models (for mask entropy of ground scene) were not all covered in train datasets. (2024.04) <Solved> 
+- Labels for previous classification models (for mask entropy of ground scene) were not all covered in train datasets. (2024.04)  <Solved> 
